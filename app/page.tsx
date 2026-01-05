@@ -25,14 +25,14 @@ export default function Home() {
 
   if (isAuthenticated) {
     return (
-      <main className="min-h-screen" style={{ backgroundColor: "#fbffd8" }}>
+      <main className="min-h-screen" style={{ backgroundColor: "#fffefa" }}>
         <Wizard />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center py-8 px-4" style={{ backgroundColor: "#fbffd8" }}>
+    <main className="min-h-screen flex items-center justify-center py-8 px-4" style={{ backgroundColor: "#fffefa" }}>
       <div className="w-full max-w-md" style={{ backgroundColor: "transparent" }}>
         <div className="flex flex-col space-y-1.5 p-6">
           <h3 className="text-2xl font-semibold leading-none tracking-tight">Login</h3>
