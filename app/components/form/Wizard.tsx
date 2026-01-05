@@ -166,24 +166,18 @@ export function Wizard() {
 
   return (
     <div className="w-full min-h-screen relative">
-      {/* Watermark Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="relative w-full h-full flex items-center justify-center">
-          <Image
-            src="/Assets/7a5bb2c43751a063990d3c59f374b73b.jpg"
-            alt="Watermark"
-            width={500}
-            height={500}
-            className="object-contain opacity-[0.08]"
-            style={{
-              maxWidth: "50%",
-              maxHeight: "50%",
-            }}
-            priority={false}
-          />
-        </div>
+      {/* Logo in top left corner */}
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+        <Image
+          src="/Assets/7a5bb2c43751a063990d3c59f374b73b.jpg"
+          alt="Logo"
+          width={120}
+          height={60}
+          className="object-contain"
+          priority
+        />
       </div>
-      
+
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

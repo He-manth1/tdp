@@ -55,3 +55,4 @@ export const submitApplication = async (data: ApplicationSubmitData) => {
   return response.data;
 };
 
+
