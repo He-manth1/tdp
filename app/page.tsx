@@ -33,21 +33,20 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center py-8 px-4 relative" style={{ backgroundColor: "#fffefa" }}>
-      {/* Logo in top left corner */}
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
-        <Image
-          src="/Assets/TDPBADGEAsset2_1024x1024.webp"
-          alt="TDP Logo"
-          width={200}
-          height={200}
-          className="object-contain"
-          priority
-        />
-      </div>
-
+    <main className="min-h-screen flex items-center justify-center py-8 px-4" style={{ backgroundColor: "#fffefa" }}>
       <div className="w-full max-w-md" style={{ backgroundColor: "transparent" }}>
         <div className="flex flex-col items-center space-y-1.5 p-6">
+          {/* Logo above Login */}
+          <div className="mb-4">
+            <Image
+              src="/Assets/TDPBADGEAsset2_1024x1024.webp"
+              alt="TDP Logo"
+              width={200}
+              height={200}
+              className="object-contain"
+              priority
+            />
+          </div>
           <div className="flex flex-col space-y-1.5 text-center">
             <h3 className="text-2xl font-semibold leading-none tracking-tight">Login</h3>
             <p className="text-sm text-muted-foreground">Enter your credentials to access the form</p>

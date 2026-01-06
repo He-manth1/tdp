@@ -167,7 +167,7 @@ export function Wizard() {
   return (
     <div className="w-full min-h-screen relative">
       {/* Logo in top left corner */}
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+      <div className="absolute top-4 left-4 z-20">
         <Image
           src="/Assets/7a5bb2c43751a063990d3c59f374b73b.jpg"
           alt="Logo"
