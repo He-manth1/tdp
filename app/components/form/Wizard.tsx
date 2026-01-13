@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,6 +23,7 @@ import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function Wizard() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -36,6 +38,7 @@ export function Wizard() {
     trigger,
     watch,
     setValue,
+    getValues,
   } = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
     mode: "onChange",
@@ -139,9 +142,48 @@ export function Wizard() {
     }
   };
 
+  const handleLogout = () => {
+    router.push("/login");
+  };
+
+  const handleLogoClick = () => {
+    // Check if form has any data filled
+    const formValues = getValues();
+    const hasFormData = Object.values(formValues).some((value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      if (typeof value === "boolean") {
+        return value === true;
+      }
+      if (typeof value === "number") {
+        return value > 0;
+      }
+      if (typeof value === "string") {
+        return value.trim().length > 0;
+      }
+      return value !== null && value !== undefined;
+    });
+
+    if (hasFormData) {
+      const confirmed = window.confirm("Are you sure to go to the dashboard page?");
+      if (confirmed) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  };
+
   if (submitSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen flex items-center justify-center px-4 py-12 relative">
+        <button
+          onClick={handleLogout}
+          className="absolute top-4 right-4 text-sm text-destructive hover:underline cursor-pointer z-30"
+        >
+          Logout
+        </button>
         <div className="max-w-2xl w-full text-center space-y-6">
           <h1 className="text-4xl font-bold text-green-600">
             {tEn.successTitle} / {tTe.successTitle}
@@ -167,7 +209,10 @@ export function Wizard() {
   return (
     <div className="w-full min-h-screen relative">
       {/* Logo in top left corner */}
-      <div className="absolute top-4 left-4 z-20">
+      <div 
+        className="absolute top-4 left-4 z-20 cursor-pointer"
+        onClick={handleLogoClick}
+      >
         <Image
           src="/Assets/7a5bb2c43751a063990d3c59f374b73b.jpg"
           alt="Logo"
@@ -177,6 +222,13 @@ export function Wizard() {
           priority
         />
       </div>
+      {/* Logout button in top right corner */}
+      <button
+        onClick={handleLogout}
+        className="absolute top-4 right-4 text-sm text-destructive hover:underline cursor-pointer z-30"
+      >
+        Logout
+      </button>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

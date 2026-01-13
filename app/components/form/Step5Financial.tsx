@@ -136,15 +136,35 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="space-y-2"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
-            <Label htmlFor="loan_amount">{tEn.loanAmount} / {tTe.loanAmount}</Label>
-            <Input
-              id="loan_amount"
-              type="number"
-              {...register("loan_amount", { valueAsNumber: true })}
-              placeholder={`${tEn.enterLoanAmount} / ${tTe.enterLoanAmount}`}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="loan_amount">{tEn.loanAmount} / {tTe.loanAmount}</Label>
+              <Input
+                id="loan_amount"
+                type="number"
+                {...register("loan_amount", { valueAsNumber: true })}
+                placeholder={`${tEn.enterLoanAmount} / ${tTe.enterLoanAmount}`}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bank_name_loan">{tEn.bankName} / {tTe.bankName}</Label>
+              <Input
+                id="bank_name_loan"
+                {...register("bank_name")}
+                placeholder={`${tEn.enterBankName} / ${tTe.enterBankName}`}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="branch_name_loan">{tEn.branchName} / {tTe.branchName}</Label>
+              <Input
+                id="branch_name_loan"
+                {...register("branch_name")}
+                placeholder={`${tEn.enterBranchName} / ${tTe.enterBranchName}`}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

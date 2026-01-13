@@ -50,9 +50,20 @@ export interface ApplicationSubmitData {
   has_pan: boolean;
 }
 
+export interface Application extends ApplicationSubmitData {
+  id: number;
+  created_at: string;
+}
+
 export const submitApplication = async (data: ApplicationSubmitData) => {
   const response = await api.post("/api/submit-application", data);
   return response.data;
 };
+
+export const fetchApplications = async (): Promise<Application[]> => {
+  const response = await api.get("/api/applications");
+  return response.data;
+};
+
 
 
