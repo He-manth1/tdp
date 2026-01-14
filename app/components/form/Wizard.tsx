@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { applicationSchema, ApplicationFormData } from "@/lib/validations";
-import { submitApplication } from "@/lib/api";
+import { submitApplication, updateApplication, Application } from "@/lib/api";
 import { Language, useTranslation } from "@/lib/translations";
 import { ProgressStepper } from "./ProgressStepper";
 import { Step1Personal } from "./Step1Personal";
@@ -22,7 +22,11 @@ import { Step9Documents } from "./Step9Documents";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export function Wizard() {
+interface WizardProps {
+  initialData?: Application;
+}
+
+export function Wizard({ initialData }: WizardProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +34,7 @@ export function Wizard() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const tEn = useTranslation("en");
   const tTe = useTranslation("te");
+  const isEditing = !!initialData;
 
   const {
     register,
@@ -42,7 +47,26 @@ export function Wizard() {
   } = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
     mode: "onChange",
-    defaultValues: {
+    defaultValues: initialData ? {
+      ...initialData,
+      // Sanitize nulls to undefined or matching types for Zod
+      membership_id: initialData.membership_id ?? undefined,
+      booth_no: initialData.booth_no ?? undefined,
+      is_shg_member: initialData.is_shg_member ?? undefined,
+      organization_type: initialData.organization_type ?? undefined,
+      group_name: initialData.group_name ?? undefined,
+      handicap_type: initialData.handicap_type ?? undefined,
+      business_nature: initialData.business_nature ?? undefined,
+      experience: initialData.experience ?? undefined,
+      branch_name: initialData.branch_name ?? undefined,
+      annual_income: initialData.annual_income ?? undefined,
+      investment_amount: initialData.investment_amount ?? undefined,
+      loan_amount: initialData.loan_amount ?? undefined,
+      bank_name: initialData.bank_name ?? undefined,
+      land_location: initialData.land_location ?? undefined,
+      survey_details: initialData.survey_details ?? undefined,
+      support_required: initialData.support_required ?? [],
+    } : {
       is_handicapped: false,
       current_business: false,
       has_bank_account: false,
@@ -131,8 +155,17 @@ export function Wizard() {
     setSubmitError(null);
 
     try {
-      await submitApplication(data);
-      setSubmitSuccess(true);
+      if (isEditing && initialData?.id) {
+        // Update existing
+        await updateApplication(initialData.id, data);
+        // For edit, maybe we don't show success screen but redirect or show generic success? 
+        // Let's keep success screen but change text?
+        setSubmitSuccess(true);
+      } else {
+        // Create new
+        await submitApplication(data);
+        setSubmitSuccess(true);
+      }
     } catch (error: any) {
       setSubmitError(
         error.response?.data?.detail || "Failed to submit application. Please try again."
@@ -186,20 +219,24 @@ export function Wizard() {
         </button>
         <div className="max-w-2xl w-full text-center space-y-6">
           <h1 className="text-4xl font-bold text-green-600">
-            {tEn.successTitle} / {tTe.successTitle}
+            {isEditing ? "Updated Successfully" : tEn.successTitle} / {isEditing ? "Updated Successfully" : tTe.successTitle}
           </h1>
           <p className="text-lg text-muted-foreground">
-            {tEn.successMessage} / {tTe.successMessage}
+            {isEditing ? "Application details have been updated." : tEn.successMessage}
           </p>
           <Button
             onClick={() => {
-              setSubmitSuccess(false);
-              setCurrentStep(1);
-              window.location.reload();
+              if (isEditing) {
+                router.push("/record");
+              } else {
+                setSubmitSuccess(false);
+                setCurrentStep(1);
+                window.location.reload();
+              }
             }}
             size="lg"
           >
-            {tEn.submitAnother} / {tTe.submitAnother}
+            {isEditing ? "Back to Records" : tEn.submitAnother}
           </Button>
         </div>
       </div>
@@ -207,17 +244,17 @@ export function Wizard() {
   }
 
   return (
-    <div className="w-full min-h-screen relative">
+    <div className="w-full min-h-screen relative pb-12">
       {/* Logo in top left corner */}
-      <div 
-        className="absolute top-4 left-4 z-20 cursor-pointer"
+      <div
+        className="fixed top-6 left-6 z-20 cursor-pointer bg-white/50 backdrop-blur-sm p-2 rounded-xl border border-white/20 hover:bg-white/80 transition-all"
         onClick={handleLogoClick}
       >
         <Image
           src="/Assets/7a5bb2c43751a063990d3c59f374b73b.jpg"
           alt="Logo"
-          width={120}
-          height={60}
+          width={100}
+          height={50}
           className="object-contain"
           priority
         />
@@ -225,17 +262,20 @@ export function Wizard() {
       {/* Logout button in top right corner */}
       <button
         onClick={handleLogout}
-        className="absolute top-4 right-4 text-sm text-destructive hover:underline cursor-pointer z-30"
+        className="fixed top-6 right-6 text-sm font-medium text-slate-500 hover:text-red-600 transition-colors z-30 px-4 py-2 bg-white/50 backdrop-blur-sm rounded-lg border border-white/20"
       >
         Logout
       </button>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-center mb-2">
-            {tEn.title} / {tTe.title}
+        <div className="mb-10 text-center space-y-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            {tEn.title} <span className="text-slate-300 mx-2">/</span> {tTe.title}
           </h1>
+          <p className="text-slate-500">
+            Please fill out the form below carefully to submit your application.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -255,7 +295,7 @@ export function Wizard() {
             ]}
           />
 
-          <div className="min-h-[500px] py-6">
+          <div className="glass rounded-2xl p-6 md:p-8 min-h-[500px]">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <Step1Personal register={register} errors={errors} tEn={tEn.personal} tTe={tTe.personal} optionsEn={tEn.options} optionsTe={tTe.options} />
@@ -313,67 +353,54 @@ export function Wizard() {
                 <Step9Documents register={register} errors={errors} setValue={setValue} watch={watch} tEn={tEn.documents} tTe={tTe.documents} />
               )}
             </AnimatePresence>
-          </div>
 
-          {submitError && (
-            <div className="mt-4 p-4 bg-destructive/10 border border-destructive rounded-md">
-              <p className="text-sm text-destructive">{submitError}</p>
-            </div>
-          )}
-
-          <div className="flex justify-between mt-8 pb-8">
-            <button
-              type="button"
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className={cn(
-                "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-11 px-8 border",
-                currentStep === 1
-                  ? "bg-gray-200 text-gray-400 border-gray-300"
-                  : "hover:opacity-90"
-              )}
-              style={
-                currentStep === 1
-                  ? undefined
-                  : {
-                      backgroundColor: "#f91723",
-                      color: "white",
-                      borderColor: "#f91723",
-                    }
-              }
-            >
-              {tEn.previous} / {tTe.previous}
-            </button>
-
-            {currentStep < 9 ? (
-              <Button 
-                type="button"
-                variant="default"
-                onClick={nextStep} 
-                size="lg"
-                style={{
-                  backgroundColor: "#416c38",
-                  color: "white",
-                }}
-                className="hover:opacity-90 !bg-[#416c38] !text-white"
-              >
-                {tEn.next} / {tTe.next}
-              </Button>
-            ) : (
-              <Button 
-                type="submit"
-                variant="default"
-                disabled={isSubmitting} 
-                size="lg"
-                style={{
-                  backgroundColor: "#416c38",
-                  color: "white",
-                }}
-                className="hover:opacity-90 !bg-[#416c38] !text-white"
-              >
-                {isSubmitting ? `${tEn.submitting} / ${tTe.submitting}` : `${tEn.submit} / ${tTe.submit}`}
-              </Button>
+            {submitError && (
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <p className="text-sm font-medium text-red-800">{submitError}</p>
+              </div>
             )}
+
+            <div className="flex justify-between items-center mt-8 pt-8 border-t border-slate-100">
+              <Button
+                type="button"
+                onClick={prevStep}
+                disabled={currentStep === 1}
+                className={cn(
+                  "w-32 shadow-lg transition-all",
+                  currentStep === 1
+                    ? "bg-gray-200 text-gray-400 border-gray-300"
+                    : "bg-[#f91723] hover:bg-[#d00f19] text-white shadow-red-200"
+                )}
+              >
+                {tEn.previous} / {tTe.previous}
+              </Button>
+
+              {currentStep < 9 ? (
+                <Button
+                  type="button"
+                  onClick={nextStep}
+                  className="w-32 bg-[#416c38] hover:bg-[#2f5028] text-white shadow-lg shadow-green-200/50"
+                  style={{ backgroundColor: "#416c38" }}
+                >
+                  {tEn.next} / {tTe.next}
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-40 bg-[#416c38] hover:bg-[#2f5028] text-white shadow-lg shadow-green-200/50"
+                  style={{ backgroundColor: "#416c38" }}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Submitting...
+                    </span>
+                  ) : `${tEn.submit} / ${tTe.submit}`}
+                </Button>
+              )}
+            </div>
           </div>
         </form>
       </div>

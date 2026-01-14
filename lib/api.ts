@@ -53,6 +53,7 @@ export interface ApplicationSubmitData {
 export interface Application extends ApplicationSubmitData {
   id: number;
   created_at: string;
+  status: string;
 }
 
 export const submitApplication = async (data: ApplicationSubmitData) => {
@@ -60,8 +61,18 @@ export const submitApplication = async (data: ApplicationSubmitData) => {
   return response.data;
 };
 
+export const updateApplication = async (id: number, data: ApplicationSubmitData) => {
+  const response = await api.put(`/api/applications/${id}`, data);
+  return response.data;
+};
+
 export const fetchApplications = async (): Promise<Application[]> => {
   const response = await api.get("/api/applications");
+  return response.data;
+};
+
+export const fetchApplication = async (id: number): Promise<Application> => {
+  const response = await api.get(`/api/applications/${id}`);
   return response.data;
 };
 
