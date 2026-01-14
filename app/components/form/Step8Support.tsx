@@ -5,6 +5,7 @@ import { ApplicationFormData } from "@/lib/validations";
 import { Label } from "@/app/components/ui/label";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { motion } from "framer-motion";
+import { Select } from "@/app/components/ui/select";
 
 interface Step8SupportProps {
   register: UseFormRegister<ApplicationFormData>;
@@ -25,16 +26,82 @@ const supportOptions = [
   "Mentoring",
 ];
 
+const loanOptions = [
+  "Chai Raasta (Women Franchise)",
+  "Chandranna Swayam Upadhi",
+  "National Livestock Mission",
+  "PM MUDRA (Kishore)",
+  "PMEGP",
+];
+
+const trainingOptions = [
+  "Carpentry",
+  "Digital Marketing",
+  "Beautician Course",
+  "Graphic Design",
+  "Mobile Repairing",
+  "Tailoring",
+  "Web development",
+];
+
+const subsidyOptions = [
+  "AP Innovation Society (APIS) Grant",
+  "PM Vishwakarma",
+  "AP MSME Policy 4.0 (One Family One Entrepreneur)",
+  "PMFME",
+];
+
+const getSubOptions = (category: string) => {
+  switch (category) {
+    case "Loan":
+      return loanOptions;
+    case "Training":
+      return trainingOptions;
+    case "Subsidy":
+      return subsidyOptions;
+    default:
+      return [];
+  }
+};
+
 export function Step8Support({ register, setValue, watch, tEn, tTe }: Step8SupportProps) {
   const supportRequired = watch("support_required") || [];
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
     const current = supportRequired || [];
     if (checked) {
+      // Add the category
       setValue("support_required", [...current, option]);
     } else {
-      setValue("support_required", current.filter((item) => item !== option));
+      // Remove the category AND any sub-options associated with it
+      const prefix = `${option}: `;
+      setValue(
+        "support_required",
+        current.filter((item) => item !== option && !item.startsWith(prefix))
+      );
     }
+  };
+
+  const handleSubOptionChange = (category: string, e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    const current = supportRequired || [];
+
+    // Remove any existing sub-option for this category
+    const prefix = `${category}: `;
+    const filtered = current.filter((item) => !item.startsWith(prefix));
+
+    // Add the new one if a value is selected
+    if (value) {
+      setValue("support_required", [...filtered, `${category}: ${value}`]);
+    } else {
+      setValue("support_required", filtered);
+    }
+  };
+
+  const getSelectedSubOption = (category: string) => {
+    const prefix = `${category}: `;
+    const found = supportRequired.find((item) => item.startsWith(prefix));
+    return found ? found.replace(prefix, "") : "";
   };
 
   const getTranslatedLabel = (option: string) => {
@@ -74,23 +141,50 @@ export function Step8Support({ register, setValue, watch, tEn, tTe }: Step8Suppo
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {supportOptions.map((option) => (
-          <div key={option} className="flex items-center space-x-2">
-            <Checkbox
-              id={`support_${option}`}
-              checked={supportRequired.includes(option)}
-              onCheckedChange={(checked) =>
-                handleCheckboxChange(option, checked as boolean)
-              }
-            />
-            <Label htmlFor={`support_${option}`} className="cursor-pointer">
-              {getTranslatedLabel(option)}
-            </Label>
-          </div>
-        ))}
+      <div className="space-y-4">
+        {supportOptions.map((option) => {
+          const isChecked = supportRequired.includes(option);
+          const subOptions = getSubOptions(option);
+          const hasSubOptions = subOptions.length > 0;
+
+          return (
+            <div key={option} className="flex flex-col space-y-3 p-4 rounded-lg border border-slate-100 bg-white/50">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`support_${option}`}
+                  checked={isChecked}
+                  onCheckedChange={(checked) =>
+                    handleCheckboxChange(option, checked as boolean)
+                  }
+                />
+                <Label htmlFor={`support_${option}`} className="cursor-pointer font-medium">
+                  {getTranslatedLabel(option)}
+                </Label>
+              </div>
+
+              {isChecked && hasSubOptions && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="pl-6 pt-2 w-full max-w-sm"
+                >
+                  <Select
+                    value={getSelectedSubOption(option)}
+                    onChange={(e) => handleSubOptionChange(option, e)}
+                  >
+                    <option value="" disabled>Select {option} Type</option>
+                    {subOptions.map((subOpt) => (
+                      <option key={subOpt} value={subOpt}>
+                        {subOpt}
+                      </option>
+                    ))}
+                  </Select>
+                </motion.div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </motion.div>
   );
 }
-
