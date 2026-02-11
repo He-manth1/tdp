@@ -44,16 +44,6 @@ interface Application {
   status: string; // Real status from DB
 }
 
-// ... existing code ...
-
-// Use the real status from the API
-const getStatus = (app: Application) => {
-  return app.status;
-};
-
-// ... existing code ...
-
-
 
 // Components
 function AnimatedCounter({ targetValue }: { targetValue: number }) {
@@ -153,9 +143,9 @@ export default function Dashboard() {
     weekday: "long", year: "numeric", month: "long", day: "numeric"
   });
 
-  // Calculate generic status based on document completion for display
+  // Use the real status from the database
   const getStatus = (app: Application) => {
-    return app.has_aadhaar ? "Completed" : "In Progress";
+    return app.status;
   };
 
   // Format relative time (basic implementation)
@@ -294,7 +284,7 @@ export default function Dashboard() {
                   {currentDate}
                 </p>
               </div>
-              <Button className="bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200">
+              <Button className="bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-200" onClick={() => router.push("/CEA")}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Application
               </Button>
@@ -336,7 +326,7 @@ export default function Dashboard() {
               <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-slate-900">Recent Applications</h2>
-                  <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
+                  <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700" onClick={() => router.push("/record")}>
                     View All <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </div>
@@ -371,25 +361,11 @@ export default function Dashboard() {
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                   <h2 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
                   <div className="grid grid-cols-2 gap-3">
-                    <ActionButton icon={<Plus className="h-5 w-5" />} label="New Record" />
-                    <ActionButton icon={<FileText className="h-5 w-5" />} label="Generate Report" />
-                    <ActionButton icon={<User className="h-5 w-5" />} label="Add User" />
-                    <ActionButton icon={<Settings className="h-5 w-5" />} label="Settings" />
+                    <ActionButton icon={<Plus className="h-5 w-5" />} label="New Application" onClick={() => router.push("/CEA")} />
+                    <ActionButton icon={<Database className="h-5 w-5" />} label="View Records" onClick={() => router.push("/record")} />
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-6 text-white relative overflow-hidden">
-                  <div className="relative z-10">
-                    <h3 className="text-lg font-bold mb-2">Pro Tip</h3>
-                    <p className="text-blue-100 text-sm mb-4">
-                      You can now export all application records directly to CSV from the records page.
-                    </p>
-                    <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
-                      Learn More
-                    </Button>
-                  </div>
-                  <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                </div>
               </div>
 
             </div>
@@ -429,6 +405,7 @@ function StatusBadge({ status }: { status: string }) {
     "Approved": "bg-emerald-100 text-emerald-700",
     "Completed": "bg-emerald-100 text-emerald-700",
     "Pending": "bg-amber-100 text-amber-700",
+    "In Review": "bg-blue-100 text-blue-700",
     "In Progress": "bg-blue-100 text-blue-700",
     "Rejected": "bg-red-100 text-red-700",
   };
@@ -437,15 +414,15 @@ function StatusBadge({ status }: { status: string }) {
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || "bg-gray-100 text-gray-700"}`}>
       {(status === "Approved" || status === "Completed") && <CheckCircle2 className="w-3 h-3 mr-1" />}
       {status === "Pending" && <Clock className="w-3 h-3 mr-1" />}
-      {status === "In Progress" && <Loader2 className="w-3 h-3 mr-1" />}
+      {(status === "In Review" || status === "In Progress") && <Loader2 className="w-3 h-3 mr-1" />}
       {status}
     </span>
   );
 }
 
-function ActionButton({ icon, label }: { icon: any, label: string }) {
+function ActionButton({ icon, label, onClick }: { icon: any, label: string, onClick?: () => void }) {
   return (
-    <button className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-all text-slate-600 hover:text-blue-600 group">
+    <button onClick={onClick} className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-all text-slate-600 hover:text-blue-600 group">
       <div className="mb-2 p-2 rounded-lg bg-slate-50 group-hover:bg-blue-50 transition-colors">
         {icon}
       </div>

@@ -1,17 +1,18 @@
 "use client";
 
-import { UseFormRegister, FieldErrors, UseFormSetValue, Watch } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { ApplicationFormData } from "@/lib/validations";
 import { Label } from "@/app/components/ui/label";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { motion } from "framer-motion";
 import { Select } from "@/app/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface Step8SupportProps {
   register: UseFormRegister<ApplicationFormData>;
   errors: FieldErrors<ApplicationFormData>;
   setValue: UseFormSetValue<ApplicationFormData>;
-  watch: Watch<ApplicationFormData>;
+  watch: UseFormWatch<ApplicationFormData>;
   tEn: typeof import("@/lib/translations").translations.en.support;
   tTe: typeof import("@/lib/translations").translations.te.support;
 }
@@ -66,6 +67,7 @@ const getSubOptions = (category: string) => {
 
 export function Step8Support({ register, setValue, watch, tEn, tTe }: Step8SupportProps) {
   const supportRequired = watch("support_required") || [];
+  const hasEdpTraining = watch("has_edp_training");
 
   const handleCheckboxChange = (option: string, checked: boolean) => {
     const current = supportRequired || [];
@@ -184,6 +186,47 @@ export function Step8Support({ register, setValue, watch, tEn, tTe }: Step8Suppo
             </div>
           );
         })}
+      </div>
+
+      {/* EDP Training Question */}
+      <div className="space-y-3 pt-2">
+        <Label>
+          {tEn.edpTraining} / {tTe.edpTraining}
+        </Label>
+        <div className="flex gap-4">
+          <label
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-all",
+              hasEdpTraining === true
+                ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                : "border-slate-200 hover:border-slate-300"
+            )}
+          >
+            <input
+              type="radio"
+              checked={hasEdpTraining === true}
+              onChange={() => setValue("has_edp_training", true)}
+              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+            />
+            <span className="text-sm font-medium">Yes / అవును</span>
+          </label>
+          <label
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-all",
+              hasEdpTraining === false
+                ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                : "border-slate-200 hover:border-slate-300"
+            )}
+          >
+            <input
+              type="radio"
+              checked={hasEdpTraining === false}
+              onChange={() => setValue("has_edp_training", false)}
+              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+            />
+            <span className="text-sm font-medium">No / లేదు</span>
+          </label>
+        </div>
       </div>
     </motion.div>
   );

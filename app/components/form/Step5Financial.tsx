@@ -1,26 +1,22 @@
 "use client";
 
-import { UseFormRegister, FieldErrors, Watch, UseFormSetValue } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { ApplicationFormData } from "@/lib/validations";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Checkbox } from "@/app/components/ui/checkbox";
-import { motion, AnimatePresence } from "framer-motion";
+import { Textarea } from "@/app/components/ui/textarea";
+import { motion } from "framer-motion";
 
 interface Step5FinancialProps {
   register: UseFormRegister<ApplicationFormData>;
   errors: FieldErrors<ApplicationFormData>;
-  watch: Watch<ApplicationFormData>;
+  watch: UseFormWatch<ApplicationFormData>;
   setValue: UseFormSetValue<ApplicationFormData>;
   tEn: typeof import("@/lib/translations").translations.en.financial;
   tTe: typeof import("@/lib/translations").translations.te.financial;
 }
 
 export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: Step5FinancialProps) {
-  const hasBankAccount = watch("has_bank_account");
-  const existingLoans = watch("existing_loans");
-  const familySupport = watch("family_support");
-
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -36,139 +32,101 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="has_bank_account"
-              checked={hasBankAccount || false}
-              onCheckedChange={(checked) => {
-                setValue("has_bank_account", checked as boolean, { shouldValidate: true });
-              }}
-            />
-            <Label htmlFor="has_bank_account">{tEn.hasBankAccount} / {tTe.hasBankAccount}</Label>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="existing_loans"
-              checked={existingLoans || false}
-              onCheckedChange={(checked) => {
-                setValue("existing_loans", checked as boolean, { shouldValidate: true });
-              }}
-            />
-            <Label htmlFor="existing_loans">{tEn.existingLoans} / {tTe.existingLoans}</Label>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="family_support"
-              checked={familySupport || false}
-              onCheckedChange={(checked) => {
-                setValue("family_support", checked as boolean, { shouldValidate: true });
-              }}
-            />
-            <Label htmlFor="family_support">{tEn.familySupport} / {tTe.familySupport}</Label>
-          </div>
-        </div>
+      {/* 1. Bank Account Number */}
+      <div className="space-y-2">
+        <Label htmlFor="bank_account_number">
+          1. {tEn.bankAccountNumber} / {tTe.bankAccountNumber}
+        </Label>
+        <Input
+          id="bank_account_number"
+          type="text"
+          {...register("bank_account_number")}
+          placeholder={`${tEn.enterBankAccountNumber} / ${tTe.enterBankAccountNumber}`}
+        />
+        {errors.bank_account_number && (
+          <p className="text-sm text-destructive">{errors.bank_account_number.message}</p>
+        )}
       </div>
 
-      <AnimatePresence>
-        {hasBankAccount && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="bank_name">{tEn.bankName} / {tTe.bankName}</Label>
-              <Input
-                id="bank_name"
-                {...register("bank_name")}
-                placeholder={`${tEn.enterBankName} / ${tTe.enterBankName}`}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="branch_name">{tEn.branchName} / {tTe.branchName}</Label>
-              <Input
-                id="branch_name"
-                {...register("branch_name")}
-                placeholder={`${tEn.enterBranchName} / ${tTe.enterBranchName}`}
-              />
-            </div>
-          </motion.div>
+      {/* 2. Annual Family Income */}
+      <div className="space-y-2">
+        <Label htmlFor="annual_family_income">
+          2. {tEn.annualFamilyIncome} / {tTe.annualFamilyIncome}
+        </Label>
+        <Input
+          id="annual_family_income"
+          type="number"
+          {...register("annual_family_income", { valueAsNumber: true })}
+          placeholder={`${tEn.enterAnnualFamilyIncome} / ${tTe.enterAnnualFamilyIncome}`}
+        />
+        {errors.annual_family_income && (
+          <p className="text-sm text-destructive">{errors.annual_family_income.message}</p>
         )}
-      </AnimatePresence>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="annual_income">{tEn.annualIncome} / {tTe.annualIncome}</Label>
-          <Input
-            id="annual_income"
-            type="number"
-            {...register("annual_income", { valueAsNumber: true })}
-            placeholder={`${tEn.enterAnnualIncome} / ${tTe.enterAnnualIncome}`}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="investment_amount">{tEn.investmentAmount} / {tTe.investmentAmount}</Label>
-          <Input
-            id="investment_amount"
-            type="number"
-            {...register("investment_amount", { valueAsNumber: true })}
-            placeholder={`${tEn.enterInvestmentAmount} / ${tTe.enterInvestmentAmount}`}
-          />
-        </div>
       </div>
 
-      <AnimatePresence>
-        {existingLoans && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="loan_amount">{tEn.loanAmount} / {tTe.loanAmount}</Label>
-              <Input
-                id="loan_amount"
-                type="number"
-                {...register("loan_amount", { valueAsNumber: true })}
-                placeholder={`${tEn.enterLoanAmount} / ${tTe.enterLoanAmount}`}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bank_name_loan">{tEn.bankName} / {tTe.bankName}</Label>
-              <Input
-                id="bank_name_loan"
-                {...register("bank_name")}
-                placeholder={`${tEn.enterBankName} / ${tTe.enterBankName}`}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="branch_name_loan">{tEn.branchName} / {tTe.branchName}</Label>
-              <Input
-                id="branch_name_loan"
-                {...register("branch_name")}
-                placeholder={`${tEn.enterBranchName} / ${tTe.enterBranchName}`}
-              />
-            </div>
-          </motion.div>
+      {/* 3. Own Contribution */}
+      <div className="space-y-2">
+        <Label htmlFor="own_contribution">
+          3. {tEn.ownContribution} / {tTe.ownContribution}
+        </Label>
+        <Input
+          id="own_contribution"
+          type="number"
+          {...register("own_contribution", { valueAsNumber: true })}
+          placeholder={`${tEn.enterOwnContribution} / ${tTe.enterOwnContribution}`}
+        />
+        {errors.own_contribution && (
+          <p className="text-sm text-destructive">{errors.own_contribution.message}</p>
         )}
-      </AnimatePresence>
+      </div>
+
+      {/* 4. Loan Required */}
+      <div className="space-y-2">
+        <Label htmlFor="loan_required">
+          4. {tEn.loanRequired} / {tTe.loanRequired}
+        </Label>
+        <Input
+          id="loan_required"
+          type="number"
+          {...register("loan_required", { valueAsNumber: true })}
+          placeholder={`${tEn.enterLoanRequired} / ${tTe.enterLoanRequired}`}
+        />
+        {errors.loan_required && (
+          <p className="text-sm text-destructive">{errors.loan_required.message}</p>
+        )}
+      </div>
+
+      {/* 5. Existing Loans */}
+      <div className="space-y-2">
+        <Label htmlFor="existing_loans">
+          5. {tEn.existingLoans} / {tTe.existingLoans}
+        </Label>
+        <Textarea
+          id="existing_loans"
+          {...register("existing_loans")}
+          placeholder={`${tEn.enterExistingLoans} / ${tTe.enterExistingLoans}`}
+          rows={3}
+        />
+        {errors.existing_loans && (
+          <p className="text-sm text-destructive">{errors.existing_loans.message}</p>
+        )}
+      </div>
+
+      {/* 6. Repayment Capacity Per Month */}
+      <div className="space-y-2">
+        <Label htmlFor="repayment_capacity">
+          6. {tEn.repaymentCapacity} / {tTe.repaymentCapacity}
+        </Label>
+        <Input
+          id="repayment_capacity"
+          type="number"
+          {...register("repayment_capacity", { valueAsNumber: true })}
+          placeholder={`${tEn.enterRepaymentCapacity} / ${tTe.enterRepaymentCapacity}`}
+        />
+        {errors.repayment_capacity && (
+          <p className="text-sm text-destructive">{errors.repayment_capacity.message}</p>
+        )}
+      </div>
     </motion.div>
   );
 }
-

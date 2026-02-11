@@ -4,21 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { applicationSchema, ApplicationFormData } from "@/lib/validations";
 import { submitApplication, updateApplication, Application } from "@/lib/api";
-import { Language, useTranslation } from "@/lib/translations";
+import { useTranslation } from "@/lib/translations";
 import { ProgressStepper } from "./ProgressStepper";
-import { Step1Personal } from "./Step1Personal";
-import { Step2SHG } from "./Step2SHG";
-import { Step3Disability } from "./Step3Disability";
-import { Step4Business } from "./Step4Business";
-import { Step5Financial } from "./Step5Financial";
-import { Step6Project } from "./Step6Project";
-import { Step7Land } from "./Step7Land";
-import { Step8Support } from "./Step8Support";
-import { Step9Documents } from "./Step9Documents";
+import { NewStep1 } from "./NewStep1";
+import { NewStep2 } from "./NewStep2";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -58,30 +51,40 @@ export function Wizard({ initialData }: WizardProps) {
       handicap_type: initialData.handicap_type ?? undefined,
       business_nature: initialData.business_nature ?? undefined,
       experience: initialData.experience ?? undefined,
-      branch_name: initialData.branch_name ?? undefined,
-      annual_income: initialData.annual_income ?? undefined,
-      investment_amount: initialData.investment_amount ?? undefined,
-      loan_amount: initialData.loan_amount ?? undefined,
-      bank_name: initialData.bank_name ?? undefined,
+      annual_family_income: initialData.annual_family_income ?? undefined,
+      own_contribution: initialData.own_contribution ?? undefined,
+      loan_required: initialData.loan_required ?? undefined,
+      existing_loans: initialData.existing_loans ?? undefined,
+      repayment_capacity: initialData.repayment_capacity ?? undefined,
       land_location: initialData.land_location ?? undefined,
       survey_details: initialData.survey_details ?? undefined,
       support_required: initialData.support_required ?? [],
+      has_edp_training: initialData.has_edp_training ?? false,
+      machinery_required: initialData.machinery_required ?? undefined,
+      raw_material_source: initialData.raw_material_source ?? undefined,
+      has_power_connection: initialData.has_power_connection ?? false,
+      has_water_facility: initialData.has_water_facility ?? false,
+      willing_full_time: initialData.willing_full_time ?? false,
+      willing_attend_training: initialData.willing_attend_training ?? false,
+      signature_data: initialData.signature_data ?? undefined,
     } : {
       is_handicapped: false,
       current_business: false,
-      has_bank_account: false,
-      existing_loans: false,
-      family_support: false,
       support_required: [],
+      has_edp_training: false,
+      willing_full_time: false,
+      willing_attend_training: false,
       has_aadhaar: false,
       has_bank_passbook: false,
       has_photo: false,
       has_income_proof: false,
       has_pan: false,
+      has_power_connection: false,
+      has_water_facility: false,
     },
   });
 
-  const totalSteps = 9;
+  const totalSteps = 2;
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep);
@@ -90,6 +93,8 @@ export function Wizard({ initialData }: WizardProps) {
     if (isValid && currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
       setSubmitError(null);
+      // Scroll to top
+      window.scrollTo(0, 0);
     }
   };
 
@@ -97,6 +102,7 @@ export function Wizard({ initialData }: WizardProps) {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
       setSubmitError(null);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -104,6 +110,7 @@ export function Wizard({ initialData }: WizardProps) {
     switch (step) {
       case 1:
         return [
+          // Step 1: Personal
           "full_name",
           "age",
           "gender",
@@ -113,37 +120,34 @@ export function Wizard({ initialData }: WizardProps) {
           "phone",
           "village",
           "mandal",
+          // Step 2: SHG
+          "is_shg_member",
+          "organization_type",
+          "group_name"
         ];
       case 2:
-        return ["is_shg_member", "organization_type", "group_name"];
-      case 3:
-        return ["is_handicapped", "handicap_type"];
-      case 4:
-        return ["current_business", "business_nature", "experience"];
-      case 5:
         return [
-          "has_bank_account",
-          "branch_name",
-          "annual_income",
-          "investment_amount",
-          "existing_loans",
-          "loan_amount",
-          "bank_name",
-          "family_support",
-        ];
-      case 6:
-        return ["project_interest", "reason_for_interest"];
-      case 7:
-        return ["land_status", "land_location", "survey_details"];
-      case 8:
-        return ["support_required"];
-      case 9:
-        return [
-          "has_aadhaar",
-          "has_bank_passbook",
-          "has_photo",
-          "has_income_proof",
-          "has_pan",
+          // Step 3: Disability
+          "is_handicapped", "handicap_type",
+          // Step 4: Business
+          "current_business", "business_nature", "experience",
+          // Step 5: Financial
+          "bank_account_number", "annual_family_income", "own_contribution", "loan_required",
+          "existing_loans", "repayment_capacity",
+          // Step 6: Project
+          "project_interest", "reason_for_interest",
+          // Training & Support Needs
+          "support_required", "has_edp_training",
+          // Resource Availability (includes land/premises)
+          "land_status", "land_location", "survey_details",
+          "machinery_required", "raw_material_source", "has_power_connection", "has_water_facility",
+          // Entrepreneurial Competency
+          "competency_risk_taking", "competency_leadership", "competency_communication",
+          "competency_financial_mgmt", "competency_problem_solving", "competency_willingness_to_learn",
+          // Commitment & Declaration
+          "willing_full_time", "willing_attend_training",
+          // Documents
+          "has_aadhaar", "has_bank_passbook", "has_photo", "has_income_proof", "has_pan"
         ];
       default:
         return [];
@@ -156,13 +160,9 @@ export function Wizard({ initialData }: WizardProps) {
 
     try {
       if (isEditing && initialData?.id) {
-        // Update existing
         await updateApplication(initialData.id, data);
-        // For edit, maybe we don't show success screen but redirect or show generic success? 
-        // Let's keep success screen but change text?
         setSubmitSuccess(true);
       } else {
-        // Create new
         await submitApplication(data);
         setSubmitSuccess(true);
       }
@@ -180,29 +180,18 @@ export function Wizard({ initialData }: WizardProps) {
   };
 
   const handleLogoClick = () => {
-    // Check if form has any data filled
     const formValues = getValues();
     const hasFormData = Object.values(formValues).some((value) => {
-      if (Array.isArray(value)) {
-        return value.length > 0;
-      }
-      if (typeof value === "boolean") {
-        return value === true;
-      }
-      if (typeof value === "number") {
-        return value > 0;
-      }
-      if (typeof value === "string") {
-        return value.trim().length > 0;
-      }
+      if (Array.isArray(value)) return value.length > 0;
+      if (typeof value === "boolean") return value === true;
+      if (typeof value === "number") return value > 0;
+      if (typeof value === "string") return value.trim().length > 0;
       return value !== null && value !== undefined;
     });
 
     if (hasFormData) {
       const confirmed = window.confirm("Are you sure to go to the dashboard page?");
-      if (confirmed) {
-        router.push("/");
-      }
+      if (confirmed) router.push("/");
     } else {
       router.push("/");
     }
@@ -245,7 +234,6 @@ export function Wizard({ initialData }: WizardProps) {
 
   return (
     <div className="w-full min-h-screen relative pb-12">
-      {/* Logo in top left corner */}
       <div
         className="fixed top-6 left-6 z-20 cursor-pointer bg-white/50 backdrop-blur-sm p-2 rounded-xl border border-white/20 hover:bg-white/80 transition-all"
         onClick={handleLogoClick}
@@ -259,7 +247,6 @@ export function Wizard({ initialData }: WizardProps) {
           priority
         />
       </div>
-      {/* Logout button in top right corner */}
       <button
         onClick={handleLogout}
         className="fixed top-6 right-6 text-sm font-medium text-slate-500 hover:text-red-600 transition-colors z-30 px-4 py-2 bg-white/50 backdrop-blur-sm rounded-lg border border-white/20"
@@ -268,7 +255,6 @@ export function Wizard({ initialData }: WizardProps) {
       </button>
 
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
-        {/* Header */}
         <div className="mb-10 text-center space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
             {tEn.title} <span className="text-slate-300 mx-2">/</span> {tTe.title}
@@ -281,76 +267,34 @@ export function Wizard({ initialData }: WizardProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="w-full">
           <ProgressStepper
             currentStep={currentStep}
-            totalSteps={9}
+            totalSteps={totalSteps}
             steps={[
-              `${tEn.steps.personal} / ${tTe.steps.personal}`,
-              `${tEn.steps.shg} / ${tTe.steps.shg}`,
-              `${tEn.steps.disability} / ${tTe.steps.disability}`,
-              `${tEn.steps.business} / ${tTe.steps.business}`,
-              `${tEn.steps.financial} / ${tTe.steps.financial}`,
-              `${tEn.steps.project} / ${tTe.steps.project}`,
-              `${tEn.steps.land} / ${tTe.steps.land}`,
-              `${tEn.steps.support} / ${tTe.steps.support}`,
-              `${tEn.steps.documents} / ${tTe.steps.documents}`,
+              "Personal & Background / వ్యక్తిగత & నేపథ్యం",
+              "Enterprise & Commitment / ఎంటర్ప్రైజ్ & నిబద్ధత"
             ]}
           />
 
           <div className="glass rounded-2xl p-6 md:p-8 min-h-[500px]">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
-                <Step1Personal register={register} errors={errors} tEn={tEn.personal} tTe={tTe.personal} optionsEn={tEn.options} optionsTe={tTe.options} />
+                <NewStep1
+                  register={register}
+                  errors={errors}
+                  watch={watch}
+                  setValue={setValue}
+                  tEn={tEn}
+                  tTe={tTe}
+                />
               )}
               {currentStep === 2 && (
-                <Step2SHG register={register} errors={errors} watch={watch} setValue={setValue} tEn={tEn.shg} tTe={tTe.shg} optionsEn={tEn.options} optionsTe={tTe.options} />
-              )}
-              {currentStep === 3 && (
-                <Step3Disability
+                <NewStep2
                   register={register}
                   errors={errors}
                   watch={watch}
                   setValue={setValue}
-                  tEn={tEn.disability}
-                  tTe={tTe.disability}
+                  tEn={tEn}
+                  tTe={tTe}
                 />
-              )}
-              {currentStep === 4 && (
-                <Step4Business
-                  register={register}
-                  errors={errors}
-                  watch={watch}
-                  setValue={setValue}
-                  tEn={tEn.business}
-                  tTe={tTe.business}
-                />
-              )}
-              {currentStep === 5 && (
-                <Step5Financial
-                  register={register}
-                  errors={errors}
-                  watch={watch}
-                  setValue={setValue}
-                  tEn={tEn.financial}
-                  tTe={tTe.financial}
-                />
-              )}
-              {currentStep === 6 && (
-                <Step6Project register={register} errors={errors} tEn={tEn.project} tTe={tTe.project} />
-              )}
-              {currentStep === 7 && (
-                <Step7Land register={register} errors={errors} watch={watch} tEn={tEn.land} tTe={tTe.land} optionsEn={tEn.options} optionsTe={tTe.options} />
-              )}
-              {currentStep === 8 && (
-                <Step8Support
-                  register={register}
-                  errors={errors}
-                  setValue={setValue}
-                  watch={watch}
-                  tEn={tEn.support}
-                  tTe={tTe.support}
-                />
-              )}
-              {currentStep === 9 && (
-                <Step9Documents register={register} errors={errors} setValue={setValue} watch={watch} tEn={tEn.documents} tTe={tTe.documents} />
               )}
             </AnimatePresence>
 
@@ -376,7 +320,7 @@ export function Wizard({ initialData }: WizardProps) {
                 {tEn.previous} / {tTe.previous}
               </Button>
 
-              {currentStep < 9 ? (
+              {currentStep < 2 ? (
                 <Button
                   type="button"
                   onClick={nextStep}

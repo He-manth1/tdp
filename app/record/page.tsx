@@ -21,7 +21,8 @@ import {
   Shield,
   Database,
   Loader2,
-  Save
+  Save,
+  Printer
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -74,6 +75,16 @@ export default function RecordPage() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredApplications = applications.filter((app) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      app.full_name?.toLowerCase().includes(query) ||
+      app.phone?.toLowerCase().includes(query) ||
+      app.id.toString().includes(query)
+    );
+  });
 
   useEffect(() => {
     loadApplications();
@@ -186,7 +197,13 @@ export default function RecordPage() {
             </button>
             <div className="hidden md:flex items-center bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 w-64 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
               <Search className="h-4 w-4 text-slate-400 mr-2" />
-              <input type="text" placeholder="Search records..." className="bg-transparent border-none outline-none text-sm w-full placeholder:text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by ID, Name, or Phone..."
+                className="bg-transparent border-none outline-none text-sm w-full placeholder:text-slate-400"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -231,12 +248,12 @@ export default function RecordPage() {
                           Loading records...
                         </td>
                       </tr>
-                    ) : applications.length === 0 ? (
+                    ) : filteredApplications.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-slate-500">No applications found.</td>
+                        <td colSpan={6} className="py-8 text-center text-slate-500">No applications found matching your search.</td>
                       </tr>
                     ) : (
-                      applications.map((app) => (
+                      filteredApplications.map((app) => (
                         <tr key={app.id} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-4 px-6 text-sm text-slate-600">#{app.id}</td>
                           <td className="py-4 px-6 text-sm font-medium text-slate-900">{app.full_name}</td>
@@ -248,6 +265,15 @@ export default function RecordPage() {
                             </button>
                           </td>
                           <td className="py-4 px-6 text-right">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                              onClick={() => window.open(`/print-record/${app.id}`, '_blank')}
+                              title="Print Application"
+                            >
+                              <Printer className="h-4 w-4" />
+                            </Button>
                             <Button
                               size="icon"
                               variant="ghost"
@@ -293,7 +319,6 @@ export default function RecordPage() {
                     className="flex-1 rounded-lg border-slate-200 text-sm focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
                     <option value="In Review">In Review</option>
                     <option value="Approved">Approved</option>
                     <option value="Completed">Completed</option>

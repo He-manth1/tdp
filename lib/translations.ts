@@ -93,19 +93,18 @@ export const translations = {
     financial: {
       title: "Financial Information",
       subtitle: "Please provide your financial details",
-      hasBankAccount: "Do you have a bank account?",
-      existingLoans: "Do you have existing loans?",
-      familySupport: "Do you have family support?",
-      bankName: "Bank Name",
-      branchName: "Branch Name",
-      annualIncome: "Annual Income (₹)",
-      investmentAmount: "Investment Amount (₹)",
-      loanAmount: "Loan Amount (₹)",
-      enterBankName: "Enter bank name",
-      enterBranchName: "Enter branch name",
-      enterAnnualIncome: "Enter annual income",
-      enterInvestmentAmount: "Enter investment amount",
-      enterLoanAmount: "Enter loan amount",
+      bankAccountNumber: "Bank Account Number",
+      enterBankAccountNumber: "Enter your bank account number",
+      annualFamilyIncome: "Annual family income (₹)",
+      ownContribution: "Own contribution (₹)",
+      loanRequired: "Loan required (₹)",
+      existingLoans: "Existing loans (if any)",
+      repaymentCapacity: "Repayment capacity per month (₹)",
+      enterAnnualFamilyIncome: "Enter annual family income",
+      enterOwnContribution: "Enter own contribution amount",
+      enterLoanRequired: "Enter loan amount required",
+      enterExistingLoans: "Describe existing loans if any (bank name, amount, purpose)",
+      enterRepaymentCapacity: "Enter monthly repayment capacity",
     },
     
     // Project Information
@@ -130,9 +129,9 @@ export const translations = {
       enterSurveyDetails: "Enter survey number or details",
     },
     
-    // Support Required
+    // Training & Support Needs
     support: {
-      title: "Support Required",
+      title: "Training & Support Needs",
       subtitle: "Select the types of support you need",
       loan: "Loan",
       subsidy: "Subsidy",
@@ -141,8 +140,34 @@ export const translations = {
       rawMaterial: "Raw Material",
       machinery: "Machinery",
       mentoring: "Mentoring",
+      edpTraining: "Have you attended any EDP training earlier?",
     },
     
+    // Resource Availability
+    resource: {
+      title: "Resource Availability",
+      subtitle: "Project Idea – Resource Availability",
+    },
+
+    // Entrepreneurial Competency
+    competency: {
+      title: "Entrepreneurial Competency",
+      subtitle: "Rate yourself on a scale of 1 to 5",
+      scaleNote: "1 = Very Low | 5 = Very High",
+      riskTaking: "Risk-taking ability",
+      leadership: "Leadership skills",
+      communication: "Communication skills",
+      financialMgmt: "Financial management",
+      problemSolving: "Problem-solving ability",
+      willingnessToLearn: "Willingness to learn",
+    },
+
+    // Commitment & Declaration
+    commitment: {
+      title: "Commitment & Declaration",
+      subtitle: "Please confirm your commitment",
+    },
+
     // Documents
     documents: {
       title: "Documents",
@@ -266,19 +291,18 @@ export const translations = {
     financial: {
       title: "ఆర్థిక సమాచారం",
       subtitle: "దయచేసి మీ ఆర్థిక వివరాలను అందించండి",
-      hasBankAccount: "మీకు బ్యాంకు ఖాతా ఉందా?",
-      existingLoans: "మీకు ఇప్పటికే రుణాలు ఉన్నాయా?",
-      familySupport: "మీకు కుటుంబ మద్దతు ఉందా?",
-      bankName: "బ్యాంకు పేరు",
-      branchName: "శాఖ పేరు",
-      annualIncome: "సంవత్సరాంతం ఆదాయం (₹)",
-      investmentAmount: "పెట్టుబడి మొత్తం (₹)",
-      loanAmount: "రుణ మొత్తం (₹)",
-      enterBankName: "బ్యాంకు పేరును నమోదు చేయండి",
-      enterBranchName: "శాఖ పేరును నమోదు చేయండి",
-      enterAnnualIncome: "సంవత్సరాంతం ఆదాయాన్ని నమోదు చేయండి",
-      enterInvestmentAmount: "పెట్టుబడి మొత్తాన్ని నమోదు చేయండి",
-      enterLoanAmount: "రుణ మొత్తాన్ని నమోదు చేయండి",
+      bankAccountNumber: "బ్యాంకు ఖాతా నంబర్",
+      enterBankAccountNumber: "మీ బ్యాంకు ఖాతా నంబర్‌ను నమోదు చేయండి",
+      annualFamilyIncome: "వార్షిక కుటుంబ ఆదాయం (₹)",
+      ownContribution: "సొంత సహకారం (₹)",
+      loanRequired: "అవసరమైన రుణం (₹)",
+      existingLoans: "ఇప్పటికే ఉన్న రుణాలు (ఏమైనా ఉంటే)",
+      repaymentCapacity: "నెలవారీ తిరిగి చెల్లింపు సామర్థ్యం (₹)",
+      enterAnnualFamilyIncome: "వార్షిక కుటుంబ ఆదాయాన్ని నమోదు చేయండి",
+      enterOwnContribution: "సొంత సహకార మొత్తాన్ని నమోదు చేయండి",
+      enterLoanRequired: "అవసరమైన రుణ మొత్తాన్ని నమోదు చేయండి",
+      enterExistingLoans: "ఉన్న రుణాలను వివరించండి (బ్యాంకు పేరు, మొత్తం, ఉద్దేశ్యం)",
+      enterRepaymentCapacity: "నెలవారీ తిరిగి చెల్లింపు సామర్థ్యాన్ని నమోదు చేయండి",
     },
     
     // Project Information
@@ -303,9 +327,9 @@ export const translations = {
       enterSurveyDetails: "సర్వే నంబర్ లేదా వివరాలను నమోదు చేయండి",
     },
     
-    // Support Required
+    // Training & Support Needs
     support: {
-      title: "అవసరమైన మద్దతు",
+      title: "శిక్షణ & మద్దతు అవసరాలు",
       subtitle: "మీకు అవసరమైన మద్దతు రకాలను ఎంచుకోండి",
       loan: "రుణం",
       subsidy: "సబ్సిడీ",
@@ -314,8 +338,34 @@ export const translations = {
       rawMaterial: "ముడి పదార్థం",
       machinery: "యంత్రాలు",
       mentoring: "మెంటరింగ్",
+      edpTraining: "మీరు ఇంతకు ముందు ఏదైనా EDP శిక్షణకు హాజరయ్యారా?",
     },
     
+    // Resource Availability
+    resource: {
+      title: "వనరుల లభ్యత",
+      subtitle: "ప్రాజెక్ట్ ఐడియా – వనరుల లభ్యత",
+    },
+
+    // Entrepreneurial Competency
+    competency: {
+      title: "ఔత్సాహిక సామర్థ్యం",
+      subtitle: "1 నుండి 5 స్కేల్‌లో మిమ్మల్ని మీరు రేట్ చేసుకోండి",
+      scaleNote: "1 = చాలా తక్కువ | 5 = చాలా ఎక్కువ",
+      riskTaking: "రిస్క్ తీసుకునే సామర్థ్యం",
+      leadership: "నాయకత్వ నైపుణ్యాలు",
+      communication: "కమ్యూనికేషన్ నైపుణ్యాలు",
+      financialMgmt: "ఆర్థిక నిర్వహణ",
+      problemSolving: "సమస్య పరిష్కార సామర్థ్యం",
+      willingnessToLearn: "నేర్చుకునే సుముఖత",
+    },
+
+    // Commitment & Declaration
+    commitment: {
+      title: "నిబద్ధత & ప్రకటన",
+      subtitle: "దయచేసి మీ నిబద్ధతను నిర్ధారించండి",
+    },
+
     // Documents
     documents: {
       title: "పత్రాలు",
@@ -351,6 +401,7 @@ export const translations = {
 export const useTranslation = (lang: Language) => {
   return translations[lang];
 };
+
 
 
 
