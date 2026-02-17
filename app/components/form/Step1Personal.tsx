@@ -7,7 +7,7 @@ import { Label } from "@/app/components/ui/label";
 import { Select } from "@/app/components/ui/select";
 import { Textarea } from "@/app/components/ui/textarea";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import locations from "../../../lib/locations.json";
 import casteDataRaw from "../../../lib/caste.json";
 
@@ -26,6 +26,7 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
   const [district, setDistrict] = useState<string>("");
   const [parliament, setParliament] = useState<string>("");
   const [assembly, setAssembly] = useState<string>("");
+  const [hasPan, setHasPan] = useState<boolean>(false);
 
   // Cast locations to the correct type to avoid TS errors
   const locationsData = locations as any;
@@ -41,6 +42,53 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
   const casteCategories = Object.keys(casteData);
   const selectedCasteCategory = watch("caste_category");
   const availableCastes = selectedCasteCategory ? (casteData[selectedCasteCategory] || []) : [];
+
+  // Watch fields for auto-address
+  const watchedVillage = watch("village");
+  const watchedMandal = watch("mandal");
+  const watchedDoorNumber = watch("door_number");
+  const watchedStreetLandmark = watch("street_landmark");
+
+  // Calculate age from DOB
+  const calculateAge = (dob: string): number => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const handleDobChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dob = e.target.value;
+    register("date_of_birth").onChange(e);
+    if (dob) {
+      const age = calculateAge(dob);
+      setValue("age", age, { shouldValidate: true });
+    }
+  };
+
+  // Auto-build address from all components
+  const buildAddress = useCallback(() => {
+    const parts: string[] = [];
+    if (watchedDoorNumber) parts.push(watchedDoorNumber);
+    if (watchedStreetLandmark) parts.push(watchedStreetLandmark);
+    if (watchedVillage) parts.push(watchedVillage);
+    if (watchedMandal) parts.push(watchedMandal);
+    if (assembly) parts.push(assembly);
+    if (parliament) parts.push(parliament);
+    if (district) parts.push(district);
+
+    if (parts.length > 0) {
+      setValue("address", parts.join(", "), { shouldValidate: true });
+    }
+  }, [watchedDoorNumber, watchedStreetLandmark, watchedVillage, watchedMandal, assembly, parliament, district, setValue]);
+
+  useEffect(() => {
+    buildAddress();
+  }, [buildAddress]);
 
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -75,13 +123,23 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
   const handleVillageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setValue("village", val);
-
-    // Auto-populate address when village is selected (or when any part is sufficiently filled, but village implies completion)
-    if (district && parliament && assembly && watch("mandal") && val) {
-      const addressString = `${val}, ${watch("mandal")}, ${assembly}, ${parliament}, ${district}`;
-      setValue("address", addressString);
-    }
   };
+
+  // Get max date for DOB (must be at least 18 years old)
+  const getMaxDobDate = () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    return d.toISOString().split("T")[0];
+  };
+
+  // Get min date for DOB (must be at most 70 years old)
+  const getMinDobDate = () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 70);
+    return d.toISOString().split("T")[0];
+  };
+
+  const watchedAge = watch("age");
 
   return (
     <motion.div
@@ -114,20 +172,30 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="age">
-            {tEn.age} / {tTe.age} <span className="text-destructive">*</span>
+          <Label htmlFor="date_of_birth">
+            Date of Birth / పుట్టిన తేదీ <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="age"
-            type="number"
-            {...register("age", { valueAsNumber: true })}
-            placeholder={`${tEn.enterAge} / ${tTe.enterAge}`}
-            min={18}
-            max={70}
+            id="date_of_birth"
+            type="date"
+            {...register("date_of_birth")}
+            onChange={handleDobChange}
+            max={getMaxDobDate()}
+            min={getMinDobDate()}
           />
+          {watchedAge > 0 && (
+            <p className="text-sm text-muted-foreground">
+              Age / వయస్సు: <span className="font-semibold text-foreground">{watchedAge} years</span>
+            </p>
+          )}
+          {errors.date_of_birth && (
+            <p className="text-sm text-destructive">{errors.date_of_birth.message}</p>
+          )}
           {errors.age && (
             <p className="text-sm text-destructive">{errors.age.message}</p>
           )}
+          {/* Hidden age field - auto-calculated from DOB */}
+          <input type="hidden" {...register("age", { valueAsNumber: true })} />
         </div>
 
         <div className="space-y-2">
@@ -231,7 +299,7 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
 
         <div className="space-y-2">
           <Label htmlFor="aadhaar_number">
-            Aadhaar Number / ఆధార్ సంఖ్య
+            Aadhaar Number / ఆధార్ సంఖ్య <span className="text-destructive">*</span>
           </Label>
           <Input
             id="aadhaar_number"
@@ -242,6 +310,79 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
           {errors.aadhaar_number && (
             <p className="text-sm text-destructive">{errors.aadhaar_number.message}</p>
           )}
+        </div>
+
+        {/* PAN Card Option */}
+        <div className="space-y-2">
+          <Label>
+            Do you have PAN Card? / మీకు PAN కార్డ్ ఉందా?
+          </Label>
+          <div className="flex items-center gap-4 mt-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="has_pan_radio"
+                value="yes"
+                checked={hasPan === true}
+                onChange={() => {
+                  setHasPan(true);
+                }}
+                className="w-4 h-4 text-blue-600"
+              />
+              <span className="text-sm">Yes / అవును</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="has_pan_radio"
+                value="no"
+                checked={hasPan === false}
+                onChange={() => {
+                  setHasPan(false);
+                  setValue("pan_number", "");
+                }}
+                className="w-4 h-4 text-blue-600"
+              />
+              <span className="text-sm">No / కాదు</span>
+            </label>
+          </div>
+          {hasPan && (
+            <div className="mt-2">
+              <Input
+                id="pan_number"
+                {...register("pan_number")}
+                placeholder="Enter PAN Number (e.g. ABCDE1234F)"
+                maxLength={10}
+                className="uppercase"
+              />
+              {errors.pan_number && (
+                <p className="text-sm text-destructive mt-1">{errors.pan_number.message}</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Door Number & Street/Landmark */}
+        <div className="space-y-2">
+          <Label htmlFor="door_number">
+            Door Number / ఇంటి నంబర్
+          </Label>
+          <Input
+            id="door_number"
+            {...register("door_number")}
+            placeholder="Enter Door Number / ఇంటి నంబర్ నమోదు చేయండి"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="street_landmark">
+            Street / Landmark / వీధి / ల్యాండ్‌మార్క్
+          </Label>
+          <Input
+            id="street_landmark"
+            {...register("street_landmark")}
+            placeholder="Enter Street / Landmark / వీధి / ల్యాండ్‌మార్క్ నమోదు చేయండి"
+          />
         </div>
 
         {/* Location Dropdowns */}
@@ -269,7 +410,7 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
           </Select>
         </div>
 
-        {/* Existing Mandal/Village fields tied to Form State but driven by Selects */}
+        {/* Mandal/Village fields tied to Form State but driven by Selects */}
         <div className="space-y-2">
           <Label htmlFor="mandal">
             {tEn.mandal} / {tTe.mandal} <span className="text-destructive">*</span>
@@ -308,15 +449,19 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
           )}
         </div>
 
+        {/* Address - Auto-generated, full width */}
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="address">
             {tEn.address} / {tTe.address} <span className="text-destructive">*</span>
+            <span className="text-xs text-muted-foreground ml-2">(Auto-generated / స్వయంచాలకంగా రూపొందించబడింది)</span>
           </Label>
           <Textarea
             id="address"
             {...register("address")}
             placeholder={`${tEn.enterAddress} / ${tTe.enterAddress}`}
             rows={3}
+            readOnly
+            className="bg-slate-50"
           />
           {errors.address && (
             <p className="text-sm text-destructive">{errors.address.message}</p>

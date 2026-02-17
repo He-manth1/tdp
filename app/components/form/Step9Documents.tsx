@@ -2,10 +2,11 @@
 
 import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { ApplicationFormData } from "@/lib/validations";
+import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { SignaturePad } from "@/app/components/ui/SignaturePad";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Step9DocumentsProps {
   register: UseFormRegister<ApplicationFormData>;
@@ -24,9 +25,10 @@ const documentOptions = [
   { id: "has_pan", key: "pan" as const },
 ];
 
-export function Step9Documents({ setValue, watch, tEn, tTe }: Step9DocumentsProps) {
+export function Step9Documents({ register, setValue, watch, tEn, tTe }: Step9DocumentsProps) {
   const fullName = watch("full_name") || "";
   const signatureData = watch("signature_data") || "";
+  const hasOtherDocuments = watch("has_other_documents");
 
   return (
     <motion.div
@@ -63,7 +65,45 @@ export function Step9Documents({ setValue, watch, tEn, tTe }: Step9DocumentsProp
             </div>
           );
         })}
+
+        {/* Other Documents */}
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="has_other_documents"
+            checked={hasOtherDocuments || false}
+            onCheckedChange={(checked) => {
+              setValue("has_other_documents", checked as boolean, { shouldValidate: true });
+              if (!checked) {
+                setValue("other_documents_details", "");
+              }
+            }}
+          />
+          <Label htmlFor="has_other_documents" className="cursor-pointer">
+            {tEn.otherDocuments} / {tTe.otherDocuments}
+          </Label>
+        </div>
       </div>
+
+      <AnimatePresence>
+        {hasOtherDocuments && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-2 border-l-2 border-primary pl-4 ml-1"
+          >
+            <Label htmlFor="other_documents_details">
+              {tEn.specifyDocuments} / {tTe.specifyDocuments}
+            </Label>
+            <Input
+              id="other_documents_details"
+              {...register("other_documents_details")}
+              placeholder={`${tEn.enterOtherDocuments} / ${tTe.enterOtherDocuments}`}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Declaration */}
       <div className="mt-6 p-5 bg-amber-50/80 border border-amber-200 rounded-xl">
@@ -97,4 +137,3 @@ export function Step9Documents({ setValue, watch, tEn, tTe }: Step9DocumentsProp
     </motion.div>
   );
 }
-

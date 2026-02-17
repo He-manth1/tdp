@@ -43,17 +43,36 @@ export function Wizard({ initialData }: WizardProps) {
     defaultValues: initialData ? {
       ...initialData,
       // Sanitize nulls to undefined or matching types for Zod
+      date_of_birth: initialData.date_of_birth ?? "",
+      pan_number: initialData.pan_number ?? "",
+      door_number: initialData.door_number ?? "",
+      street_landmark: initialData.street_landmark ?? "",
       membership_id: initialData.membership_id ?? undefined,
       booth_no: initialData.booth_no ?? undefined,
       is_shg_member: initialData.is_shg_member ?? undefined,
+      shg_member_relation: initialData.shg_member_relation ?? "",
       organization_type: initialData.organization_type ?? undefined,
       group_name: initialData.group_name ?? undefined,
+      has_shg_loan: initialData.has_shg_loan ?? false,
+      shg_loan_bank_branch: initialData.shg_loan_bank_branch ?? "",
+      shg_loan_amount: initialData.shg_loan_amount ?? undefined,
+      shg_loan_year: initialData.shg_loan_year ?? "",
+      shg_loan_month: initialData.shg_loan_month ?? "",
+      shg_outstanding_months: initialData.shg_outstanding_months ?? undefined,
+      shg_outstanding_amount: initialData.shg_outstanding_amount ?? undefined,
       handicap_type: initialData.handicap_type ?? undefined,
       business_nature: initialData.business_nature ?? undefined,
       experience: initialData.experience ?? undefined,
+      want_to_expand: initialData.want_to_expand ?? undefined,
+      is_bpl: initialData.is_bpl ?? undefined,
+      ration_card_number: initialData.ration_card_number ?? "",
+      bank_name: initialData.bank_name ?? "",
+      bank_branch: initialData.bank_branch ?? "",
       annual_family_income: initialData.annual_family_income ?? undefined,
       own_contribution: initialData.own_contribution ?? undefined,
       loan_required: initialData.loan_required ?? undefined,
+      has_existing_loans: initialData.has_existing_loans ?? undefined,
+      existing_loan_type: initialData.existing_loan_type ?? "",
       existing_loans: initialData.existing_loans ?? undefined,
       repayment_capacity: initialData.repayment_capacity ?? undefined,
       land_location: initialData.land_location ?? undefined,
@@ -66,8 +85,11 @@ export function Wizard({ initialData }: WizardProps) {
       has_water_facility: initialData.has_water_facility ?? false,
       willing_full_time: initialData.willing_full_time ?? false,
       willing_attend_training: initialData.willing_attend_training ?? false,
+      has_other_documents: initialData.has_other_documents ?? false,
+      other_documents_details: initialData.other_documents_details ?? "",
       signature_data: initialData.signature_data ?? undefined,
     } : {
+      date_of_birth: "",
       is_handicapped: false,
       current_business: false,
       support_required: [],
@@ -79,8 +101,17 @@ export function Wizard({ initialData }: WizardProps) {
       has_photo: false,
       has_income_proof: false,
       has_pan: false,
+      has_other_documents: false,
+      other_documents_details: "",
       has_power_connection: false,
       has_water_facility: false,
+      pan_number: "",
+      door_number: "",
+      street_landmark: "",
+      ration_card_number: "",
+      bank_name: "",
+      bank_branch: "",
+      existing_loan_type: "",
     },
   });
 
@@ -112,28 +143,40 @@ export function Wizard({ initialData }: WizardProps) {
         return [
           // Step 1: Personal
           "full_name",
+          "date_of_birth",
           "age",
           "gender",
           "caste_category",
           "education",
           "address",
           "phone",
+          "aadhaar_number",
           "village",
           "mandal",
           // Step 2: SHG
           "is_shg_member",
+          "shg_member_relation",
           "organization_type",
-          "group_name"
+          "group_name",
+          "has_shg_loan",
+          "shg_loan_bank_branch",
+          "shg_loan_amount",
+          "shg_loan_year",
+          "shg_loan_month",
+          "shg_outstanding_months",
+          "shg_outstanding_amount"
         ];
       case 2:
         return [
           // Step 3: Disability
           "is_handicapped", "handicap_type",
           // Step 4: Business
-          "current_business", "business_nature", "experience",
+          "current_business", "business_nature", "experience", "want_to_expand",
           // Step 5: Financial
-          "bank_account_number", "annual_family_income", "own_contribution", "loan_required",
-          "existing_loans", "repayment_capacity",
+          "is_bpl", "ration_card_number",
+          "bank_account_number", "bank_name", "bank_branch",
+          "annual_family_income", "own_contribution", "loan_required",
+          "has_existing_loans", "existing_loan_type", "existing_loans", "repayment_capacity",
           // Step 6: Project
           "project_interest", "reason_for_interest",
           // Training & Support Needs
@@ -147,7 +190,8 @@ export function Wizard({ initialData }: WizardProps) {
           // Commitment & Declaration
           "willing_full_time", "willing_attend_training",
           // Documents
-          "has_aadhaar", "has_bank_passbook", "has_photo", "has_income_proof", "has_pan"
+          "has_aadhaar", "has_bank_passbook", "has_photo", "has_income_proof", "has_pan",
+          "has_other_documents", "other_documents_details"
         ];
       default:
         return [];
@@ -311,29 +355,31 @@ export function Wizard({ initialData }: WizardProps) {
                 onClick={prevStep}
                 disabled={currentStep === 1}
                 className={cn(
-                  "w-32 shadow-lg transition-all",
+                  "group relative overflow-hidden px-6 py-2 shadow-lg transition-all",
                   currentStep === 1
                     ? "bg-gray-200 text-gray-400 border-gray-300"
                     : "bg-[#f91723] hover:bg-[#d00f19] text-white shadow-red-200"
                 )}
               >
-                {tEn.previous} / {tTe.previous}
+                <span className="block transition-transform duration-300 group-hover:-translate-y-full">{tEn.previous}</span>
+                <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 translate-y-full group-hover:translate-y-0">{tTe.previous}</span>
               </Button>
 
               {currentStep < 2 ? (
                 <Button
                   type="button"
                   onClick={nextStep}
-                  className="w-32 bg-[#416c38] hover:bg-[#2f5028] text-white shadow-lg shadow-green-200/50"
+                  className="group relative overflow-hidden px-6 py-2 bg-[#416c38] hover:bg-[#2f5028] text-white shadow-lg shadow-green-200/50"
                   style={{ backgroundColor: "#416c38" }}
                 >
-                  {tEn.next} / {tTe.next}
+                  <span className="block transition-transform duration-300 group-hover:-translate-y-full">{tEn.next}</span>
+                  <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 translate-y-full group-hover:translate-y-0">{tTe.next}</span>
                 </Button>
               ) : (
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-40 bg-[#416c38] hover:bg-[#2f5028] text-white shadow-lg shadow-green-200/50"
+                  className="group relative overflow-hidden px-6 py-2 bg-[#416c38] hover:bg-[#2f5028] text-white shadow-lg shadow-green-200/50"
                   style={{ backgroundColor: "#416c38" }}
                 >
                   {isSubmitting ? (
@@ -341,7 +387,12 @@ export function Wizard({ initialData }: WizardProps) {
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Submitting...
                     </span>
-                  ) : `${tEn.submit} / ${tTe.submit}`}
+                  ) : (
+                    <>
+                      <span className="block transition-transform duration-300 group-hover:-translate-y-full">{tEn.submit}</span>
+                      <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 translate-y-full group-hover:translate-y-0">{tTe.submit}</span>
+                    </>
+                  )}
                 </Button>
               )}
             </div>

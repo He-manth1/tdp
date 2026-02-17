@@ -18,6 +18,7 @@ interface Step4BusinessProps {
 
 export function Step4Business({ register, errors, watch, setValue, tEn, tTe }: Step4BusinessProps) {
   const currentBusiness = watch("current_business");
+  const wantToExpand = watch("want_to_expand");
 
   return (
     <motion.div
@@ -100,6 +101,33 @@ export function Step4Business({ register, errors, watch, setValue, tEn, tTe }: S
                   {...register("reason_for_closure")}
                   placeholder="Reason for closure / మూసివేతకు కారణం"
                 />
+              </div>
+            </div>
+
+            {/* Want to Expand */}
+            <div className="space-y-2 mt-4">
+              <Label>Do you want to expand the business? / వ్యాపారాన్ని విస్తరించాలనుకుంటున్నారా?</Label>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="want_to_expand_yes"
+                    checked={wantToExpand === true}
+                    onChange={() => setValue("want_to_expand", true, { shouldValidate: true })}
+                    className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <Label htmlFor="want_to_expand_yes">Yes / అవును</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="want_to_expand_no"
+                    checked={wantToExpand === false}
+                    onChange={() => setValue("want_to_expand", false, { shouldValidate: true })}
+                    className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <Label htmlFor="want_to_expand_no">No / లేదు</Label>
+                </div>
               </div>
             </div>
           </motion.div>

@@ -5,7 +5,7 @@ import { ApplicationFormData } from "@/lib/validations";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Step5FinancialProps {
   register: UseFormRegister<ApplicationFormData>;
@@ -17,6 +17,9 @@ interface Step5FinancialProps {
 }
 
 export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: Step5FinancialProps) {
+  const isBpl = watch("is_bpl");
+  const hasExistingLoans = watch("has_existing_loans");
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -32,10 +35,66 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
         </p>
       </div>
 
-      {/* 1. Bank Account Number */}
+      {/* 1. BPL */}
+      <div className="space-y-2">
+        <Label>
+          1. {tEn.isBpl} / {tTe.isBpl}
+        </Label>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="is_bpl_yes"
+              checked={isBpl === true}
+              onChange={() => setValue("is_bpl", true, { shouldValidate: true })}
+              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+            />
+            <Label htmlFor="is_bpl_yes">Yes / అవును</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="is_bpl_no"
+              checked={isBpl === false}
+              onChange={() => {
+                setValue("is_bpl", false, { shouldValidate: true });
+                setValue("ration_card_number", "");
+              }}
+              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+            />
+            <Label htmlFor="is_bpl_no">No / కాదు</Label>
+          </div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isBpl && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-2 border-l-2 border-primary pl-4 ml-1"
+          >
+            <Label htmlFor="ration_card_number">
+              {tEn.rationCardNumber} / {tTe.rationCardNumber}
+            </Label>
+            <Input
+              id="ration_card_number"
+              {...register("ration_card_number")}
+              placeholder={`${tEn.enterRationCardNumber} / ${tTe.enterRationCardNumber}`}
+            />
+            {errors.ration_card_number && (
+              <p className="text-sm text-destructive">{errors.ration_card_number.message}</p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 2. Bank Account Number */}
       <div className="space-y-2">
         <Label htmlFor="bank_account_number">
-          1. {tEn.bankAccountNumber} / {tTe.bankAccountNumber}
+          2. {tEn.bankAccountNumber} / {tTe.bankAccountNumber}
         </Label>
         <Input
           id="bank_account_number"
@@ -48,10 +107,40 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
         )}
       </div>
 
-      {/* 2. Annual Family Income */}
+      {/* 3. Bank Name and Branch */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="bank_name">
+            3. {tEn.bankName} / {tTe.bankName}
+          </Label>
+          <Input
+            id="bank_name"
+            {...register("bank_name")}
+            placeholder={`${tEn.enterBankName} / ${tTe.enterBankName}`}
+          />
+          {errors.bank_name && (
+            <p className="text-sm text-destructive">{errors.bank_name.message}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bank_branch">
+            {tEn.bankBranch} / {tTe.bankBranch}
+          </Label>
+          <Input
+            id="bank_branch"
+            {...register("bank_branch")}
+            placeholder={`${tEn.enterBankBranch} / ${tTe.enterBankBranch}`}
+          />
+          {errors.bank_branch && (
+            <p className="text-sm text-destructive">{errors.bank_branch.message}</p>
+          )}
+        </div>
+      </div>
+
+      {/* 4. Annual Family Income */}
       <div className="space-y-2">
         <Label htmlFor="annual_family_income">
-          2. {tEn.annualFamilyIncome} / {tTe.annualFamilyIncome}
+          4. {tEn.annualFamilyIncome} / {tTe.annualFamilyIncome}
         </Label>
         <Input
           id="annual_family_income"
@@ -64,10 +153,10 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
         )}
       </div>
 
-      {/* 3. Own Contribution */}
+      {/* 5. Own Contribution */}
       <div className="space-y-2">
         <Label htmlFor="own_contribution">
-          3. {tEn.ownContribution} / {tTe.ownContribution}
+          5. {tEn.ownContribution} / {tTe.ownContribution}
         </Label>
         <Input
           id="own_contribution"
@@ -80,10 +169,10 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
         )}
       </div>
 
-      {/* 4. Loan Required */}
+      {/* 6. Loan Required */}
       <div className="space-y-2">
         <Label htmlFor="loan_required">
-          4. {tEn.loanRequired} / {tTe.loanRequired}
+          6. {tEn.loanRequired} / {tTe.loanRequired}
         </Label>
         <Input
           id="loan_required"
@@ -96,26 +185,100 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
         )}
       </div>
 
-      {/* 5. Existing Loans */}
+      {/* 7. Existing Loans */}
       <div className="space-y-2">
-        <Label htmlFor="existing_loans">
-          5. {tEn.existingLoans} / {tTe.existingLoans}
+        <Label>
+          7. {tEn.existingLoans} / {tTe.existingLoans}
         </Label>
-        <Textarea
-          id="existing_loans"
-          {...register("existing_loans")}
-          placeholder={`${tEn.enterExistingLoans} / ${tTe.enterExistingLoans}`}
-          rows={3}
-        />
-        {errors.existing_loans && (
-          <p className="text-sm text-destructive">{errors.existing_loans.message}</p>
-        )}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="has_existing_loans_yes"
+              checked={hasExistingLoans === true}
+              onChange={() => setValue("has_existing_loans", true, { shouldValidate: true })}
+              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+            />
+            <Label htmlFor="has_existing_loans_yes">Yes / అవును</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="has_existing_loans_no"
+              checked={hasExistingLoans === false}
+              onChange={() => {
+                setValue("has_existing_loans", false, { shouldValidate: true });
+                setValue("existing_loan_type", "");
+                setValue("existing_loans", "");
+              }}
+              className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+            />
+            <Label htmlFor="has_existing_loans_no">No / కాదు</Label>
+          </div>
+        </div>
       </div>
 
-      {/* 6. Repayment Capacity Per Month */}
+      <AnimatePresence>
+        {hasExistingLoans && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4 border-l-2 border-primary pl-4 ml-1"
+          >
+            {/* Loan Type */}
+            <div className="space-y-2">
+              <Label>{tEn.loanType} / {tTe.loanType}</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { value: "Home Loan", en: "Home Loan", te: "గృహ రుణం" },
+                  { value: "Personal Loan", en: "Personal Loan", te: "వ్యక్తిగత రుణం" },
+                  { value: "Agriculture Loan", en: "Agriculture Loan", te: "వ్యవసాయ రుణం" },
+                  { value: "Other", en: "Other", te: "ఇతర" },
+                ].map((opt) => (
+                  <div key={opt.value} className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id={`loan_type_${opt.value}`}
+                      value={opt.value}
+                      {...register("existing_loan_type")}
+                      className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <Label htmlFor={`loan_type_${opt.value}`} className="text-sm">
+                      {opt.en} / {opt.te}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {errors.existing_loan_type && (
+                <p className="text-sm text-destructive">{errors.existing_loan_type.message}</p>
+              )}
+            </div>
+
+            {/* Loan Details */}
+            <div className="space-y-2">
+              <Label htmlFor="existing_loans">
+                {tEn.loanDetails} / {tTe.loanDetails}
+              </Label>
+              <Textarea
+                id="existing_loans"
+                {...register("existing_loans")}
+                placeholder={`${tEn.enterExistingLoans} / ${tTe.enterExistingLoans}`}
+                rows={3}
+              />
+              {errors.existing_loans && (
+                <p className="text-sm text-destructive">{errors.existing_loans.message}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 8. Repayment Capacity Per Month */}
       <div className="space-y-2">
         <Label htmlFor="repayment_capacity">
-          6. {tEn.repaymentCapacity} / {tTe.repaymentCapacity}
+          8. {tEn.repaymentCapacity} / {tTe.repaymentCapacity}
         </Label>
         <Input
           id="repayment_capacity"

@@ -109,6 +109,12 @@ export default function PrintRecordPage() {
                             <span className="font-semibold text-gray-600">Full Name:</span>
                             <span className="col-span-2 font-medium">{application.full_name}</span>
                         </div>
+                        {application.date_of_birth && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Date of Birth:</span>
+                                <span className="col-span-2 font-medium">{application.date_of_birth}</span>
+                            </div>
+                        )}
                         <div className="grid grid-cols-3">
                             <span className="font-semibold text-gray-600">Age / Gender:</span>
                             <span className="col-span-2 font-medium">{application.age} / {application.gender}</span>
@@ -129,10 +135,14 @@ export default function PrintRecordPage() {
                             <span className="font-semibold text-gray-600">Education:</span>
                             <span className="col-span-2 font-medium">{application.education}</span>
                         </div>
-                        {application.aadhaar_number && (
+                        <div className="grid grid-cols-3">
+                            <span className="font-semibold text-gray-600">Aadhaar Number:</span>
+                            <span className="col-span-2 font-medium">{application.aadhaar_number}</span>
+                        </div>
+                        {application.pan_number && (
                             <div className="grid grid-cols-3">
-                                <span className="font-semibold text-gray-600">Aadhaar Number:</span>
-                                <span className="col-span-2 font-medium">{application.aadhaar_number}</span>
+                                <span className="font-semibold text-gray-600">PAN Number:</span>
+                                <span className="col-span-2 font-medium">{application.pan_number}</span>
                             </div>
                         )}
                         <div className="grid grid-cols-3">
@@ -174,6 +184,12 @@ export default function PrintRecordPage() {
                                 <span className="font-semibold text-gray-600">SHG Member:</span>
                                 <span className="col-span-2 font-medium">Yes</span>
                             </div>
+                            {application.shg_member_relation && (
+                                <div className="grid grid-cols-3">
+                                    <span className="font-semibold text-gray-600">Relationship:</span>
+                                    <span className="col-span-2 font-medium">{application.shg_member_relation}</span>
+                                </div>
+                            )}
                             {application.organization_type && (
                                 <div className="grid grid-cols-3">
                                     <span className="font-semibold text-gray-600">Organization Type:</span>
@@ -187,6 +203,51 @@ export default function PrintRecordPage() {
                                 </div>
                             )}
                         </div>
+
+                        {/* SHG Loan Information */}
+                        {application.has_shg_loan && (
+                            <div className="mt-3 pt-2 border-t border-gray-200">
+                                <p className="font-semibold text-gray-700 mb-2">SHG Loan Details</p>
+                                <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                                    {application.shg_loan_bank_branch && (
+                                        <div className="grid grid-cols-3">
+                                            <span className="font-semibold text-gray-600">Bank & Branch:</span>
+                                            <span className="col-span-2 font-medium">{application.shg_loan_bank_branch}</span>
+                                        </div>
+                                    )}
+                                    {application.shg_loan_amount != null && (
+                                        <div className="grid grid-cols-3">
+                                            <span className="font-semibold text-gray-600">Loan Amount:</span>
+                                            <span className="col-span-2 font-medium">{"\u20B9"}{application.shg_loan_amount.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {application.shg_loan_year && (
+                                        <div className="grid grid-cols-3">
+                                            <span className="font-semibold text-gray-600">Year of Loan:</span>
+                                            <span className="col-span-2 font-medium">{application.shg_loan_year}</span>
+                                        </div>
+                                    )}
+                                    {application.shg_loan_month && (
+                                        <div className="grid grid-cols-3">
+                                            <span className="font-semibold text-gray-600">Month of Loan:</span>
+                                            <span className="col-span-2 font-medium">{application.shg_loan_month}</span>
+                                        </div>
+                                    )}
+                                    {application.shg_outstanding_months != null && (
+                                        <div className="grid grid-cols-3">
+                                            <span className="font-semibold text-gray-600">Outstanding Months:</span>
+                                            <span className="col-span-2 font-medium">{application.shg_outstanding_months}</span>
+                                        </div>
+                                    )}
+                                    {application.shg_outstanding_amount != null && (
+                                        <div className="grid grid-cols-3">
+                                            <span className="font-semibold text-gray-600">Outstanding Amount:</span>
+                                            <span className="col-span-2 font-medium">{"\u20B9"}{application.shg_outstanding_amount.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </section>
                 )}
 
@@ -217,6 +278,12 @@ export default function PrintRecordPage() {
                             <span className="font-semibold text-gray-600">Current Business:</span>
                             <span className="col-span-2 font-medium">{application.current_business ? "Yes" : "No"}</span>
                         </div>
+                        {application.current_business && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Want to Expand:</span>
+                                <span className="col-span-2 font-medium">{application.want_to_expand ? "Yes" : "No"}</span>
+                            </div>
+                        )}
                         {application.business_nature && (
                             <div className="grid grid-cols-3">
                                 <span className="font-semibold text-gray-600">Nature of Business:</span>
@@ -344,10 +411,32 @@ export default function PrintRecordPage() {
                 <section>
                     <h2 className="text-lg font-bold border-b border-gray-300 mb-3 pb-1 uppercase">Financial Information</h2>
                     <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                        <div className="grid grid-cols-3">
+                            <span className="font-semibold text-gray-600">BPL:</span>
+                            <span className="col-span-2 font-medium">{application.is_bpl ? "Yes" : "No"}</span>
+                        </div>
+                        {application.is_bpl && application.ration_card_number && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Ration Card No:</span>
+                                <span className="col-span-2 font-medium">{application.ration_card_number}</span>
+                            </div>
+                        )}
                         {application.bank_account_number && (
                             <div className="grid grid-cols-3">
                                 <span className="font-semibold text-gray-600">Bank Account No:</span>
                                 <span className="col-span-2 font-medium">{application.bank_account_number}</span>
+                            </div>
+                        )}
+                        {application.bank_name && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Bank Name:</span>
+                                <span className="col-span-2 font-medium">{application.bank_name}</span>
+                            </div>
+                        )}
+                        {application.bank_branch && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Branch:</span>
+                                <span className="col-span-2 font-medium">{application.bank_branch}</span>
                             </div>
                         )}
                         {application.annual_family_income != null && (
@@ -368,9 +457,19 @@ export default function PrintRecordPage() {
                                 <span className="col-span-2 font-medium">{"\u20B9"}{application.loan_required.toLocaleString()}</span>
                             </div>
                         )}
+                        <div className="grid grid-cols-3">
+                            <span className="font-semibold text-gray-600">Existing Loans:</span>
+                            <span className="col-span-2 font-medium">{application.has_existing_loans ? "Yes" : "No"}</span>
+                        </div>
+                        {application.has_existing_loans && application.existing_loan_type && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Loan Type:</span>
+                                <span className="col-span-2 font-medium">{application.existing_loan_type}</span>
+                            </div>
+                        )}
                         {application.existing_loans && (
                             <div className="grid grid-cols-3 col-span-2">
-                                <span className="font-semibold text-gray-600">Existing Loans:</span>
+                                <span className="font-semibold text-gray-600">Loan Details:</span>
                                 <span className="col-span-2 font-medium">{application.existing_loans}</span>
                             </div>
                         )}
@@ -493,6 +592,12 @@ export default function PrintRecordPage() {
                                 {application.has_pan && "✓"}
                             </div>
                             <span>PAN Card</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className={`w-4 h-4 border border-black flex items-center justify-center`}>
+                                {application.has_other_documents && "✓"}
+                            </div>
+                            <span>Other Documents{application.has_other_documents && application.other_documents_details ? `: ${application.other_documents_details}` : ""}</span>
                         </div>
                     </div>
                 </section>

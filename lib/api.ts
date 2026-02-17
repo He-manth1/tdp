@@ -12,6 +12,7 @@ export const api = axios.create({
 export interface ApplicationSubmitData {
   // Personal Information
   full_name: string;
+  date_of_birth: string;
   age: number;
   gender: "Male" | "Female" | "Other";
   caste_category: "BC" | "OC" | "SC" | "ST" | "Minority";
@@ -19,16 +20,29 @@ export interface ApplicationSubmitData {
   education: string;
   address: string;
   phone: string;
-  aadhaar_number?: string;
+  aadhaar_number: string;
+  pan_number?: string;
   membership_id?: string;
   village: string;
   booth_no?: string;
   mandal: string;
+  door_number?: string;
+  street_landmark?: string;
 
   // SHG Information
   is_shg_member?: boolean;
+  shg_member_relation?: string;
   organization_type?: "SERP" | "MEPMA" | "Other";
   group_name?: string;
+
+  // SHG Loan Information
+  has_shg_loan?: boolean;
+  shg_loan_bank_branch?: string;
+  shg_loan_amount?: number;
+  shg_loan_year?: string;
+  shg_loan_month?: string;
+  shg_outstanding_months?: number;
+  shg_outstanding_amount?: number;
 
   // Disability Information
   is_handicapped: boolean;
@@ -39,15 +53,22 @@ export interface ApplicationSubmitData {
   business_nature?: string;
   experience?: number;
   reason_for_closure?: string;
+  want_to_expand?: boolean;
   family_business_in_business: boolean;
   family_business_activity?: string;
   business_motivation?: string;
 
   // Financial Information
+  is_bpl?: boolean;
+  ration_card_number?: string;
   bank_account_number?: string;
+  bank_name?: string;
+  bank_branch?: string;
   annual_family_income?: number;
   own_contribution?: number;
   loan_required?: number;
+  has_existing_loans?: boolean;
+  existing_loan_type?: string;
   existing_loans?: string;
   repayment_capacity?: number;
 
@@ -93,6 +114,8 @@ export interface ApplicationSubmitData {
   has_photo: boolean;
   has_income_proof: boolean;
   has_pan: boolean;
+  has_other_documents?: boolean;
+  other_documents_details?: string;
 
   // Signature
   signature_data?: string;
