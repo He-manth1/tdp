@@ -37,6 +37,33 @@ export function Step1Personal({ register, errors, watch, setValue, tEn, tTe, opt
   const mandals = assembly ? Object.keys(locationsData[district]?.[parliament]?.[assembly] || {}) : [];
   const villages = (assembly && watch("mandal")) ? (locationsData[district]?.[parliament]?.[assembly]?.[watch("mandal")] || []) : [];
 
+  // Reverse-lookup: on mount, if mandal/village already have values (edit mode),
+  // find the matching district/parliament/assembly from the locations data.
+  useEffect(() => {
+    const savedMandal = watch("mandal");
+    const savedPan = watch("pan_number");
+    if (savedPan && savedPan.length > 0) {
+      setHasPan(true);
+    }
+    if (!savedMandal || district) return; // nothing to lookup, or already set
+
+    // Walk through the entire locations tree to find the mandal
+    for (const dist of Object.keys(locationsData)) {
+      for (const parl of Object.keys(locationsData[dist] || {})) {
+        for (const assem of Object.keys(locationsData[dist][parl] || {})) {
+          const mandalKeys = Object.keys(locationsData[dist][parl][assem] || {});
+          if (mandalKeys.includes(savedMandal)) {
+            setDistrict(dist);
+            setParliament(parl);
+            setAssembly(assem);
+            return; // found it
+          }
+        }
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only on mount
+
   // Caste Logic
   const casteData = casteDataRaw as Record<string, string[]>;
   const casteCategories = Object.keys(casteData);

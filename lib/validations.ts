@@ -1,10 +1,34 @@
 import { z } from "zod";
 
+// Helper: converts NaN / empty-string / null / undefined → undefined before Zod validates
+const optionalNumber = (min = 0) =>
+  z.preprocess(
+    (val) => {
+      if (val === "" || val === null || val === undefined) return undefined;
+      const n = Number(val);
+      return isNaN(n) ? undefined : n;
+    },
+    z.number().min(min).optional()
+  );
+
+const optionalRating = () =>
+  z.preprocess(
+    (val) => {
+      if (val === "" || val === null || val === undefined) return undefined;
+      const n = Number(val);
+      return isNaN(n) ? undefined : n;
+    },
+    z.number().min(1).max(5).optional()
+  );
+
 export const applicationSchema = z.object({
   // Personal Information
   full_name: z.string().min(1, "Full name is required").max(255),
   date_of_birth: z.string().min(1, "Date of birth is required"),
-  age: z.number().min(18, "Age must be at least 18").max(70, "Age must be at most 70"),
+  age: z.preprocess(
+    (val) => { const n = Number(val); return isNaN(n) ? undefined : n; },
+    z.number({ required_error: "Age is required" }).min(18, "Age must be at least 18").max(70, "Age must be at most 70")
+  ),
   gender: z.enum(["Male", "Female", "Other"], {
     required_error: "Gender is required",
   }),
@@ -33,11 +57,11 @@ export const applicationSchema = z.object({
   // SHG Loan Information
   has_shg_loan: z.boolean().optional(),
   shg_loan_bank_branch: z.string().optional(),
-  shg_loan_amount: z.number().min(0).optional(),
+  shg_loan_amount: optionalNumber(),
   shg_loan_year: z.string().optional(),
   shg_loan_month: z.string().optional(),
-  shg_outstanding_months: z.number().min(0).optional(),
-  shg_outstanding_amount: z.number().min(0).optional(),
+  shg_outstanding_months: optionalNumber(),
+  shg_outstanding_amount: optionalNumber(),
 
   // Disability Information (conditional - only if Is Handicapped is Yes)
   is_handicapped: z.boolean().default(false),
@@ -46,7 +70,7 @@ export const applicationSchema = z.object({
   // Business Information
   current_business: z.boolean().default(false),
   business_nature: z.string().optional(),
-  experience: z.number().min(0).optional(),
+  experience: optionalNumber(),
   reason_for_closure: z.string().optional(),
   want_to_expand: z.boolean().optional(),
   family_business_in_business: z.boolean().default(false),
@@ -59,13 +83,13 @@ export const applicationSchema = z.object({
   bank_account_number: z.string().optional(),
   bank_name: z.string().optional(),
   bank_branch: z.string().optional(),
-  annual_family_income: z.number().min(0).optional(),
-  own_contribution: z.number().min(0).optional(),
-  loan_required: z.number().min(0).optional(),
+  annual_family_income: optionalNumber(),
+  own_contribution: optionalNumber(),
+  loan_required: optionalNumber(),
   has_existing_loans: z.boolean().optional(),
   existing_loan_type: z.string().optional(),
   existing_loans: z.string().optional(),
-  repayment_capacity: z.number().min(0).optional(),
+  repayment_capacity: optionalNumber(),
 
   // Project Information
   project_interest: z.string().min(1, "Project interest is required").max(255),
@@ -73,8 +97,8 @@ export const applicationSchema = z.object({
   market_survey_done: z.boolean().default(false),
   target_customers: z.string().optional(), // Will store comma separated string or simplified
   major_competitors: z.string().optional(),
-  expected_monthly_sales: z.number().min(0).optional(),
-  expected_monthly_profit: z.number().min(0).optional(),
+  expected_monthly_sales: optionalNumber(),
+  expected_monthly_profit: optionalNumber(),
 
   // Land Information (conditional - only if Land Status is not "Not Available")
   land_status: z.enum(["Own", "Rented", "Lease", "Not Available"], {
@@ -94,12 +118,12 @@ export const applicationSchema = z.object({
   has_water_facility: z.boolean().default(false),
 
   // Entrepreneurial Competency (Rating Scale 1-5)
-  competency_risk_taking: z.number().min(1).max(5).optional(),
-  competency_leadership: z.number().min(1).max(5).optional(),
-  competency_communication: z.number().min(1).max(5).optional(),
-  competency_financial_mgmt: z.number().min(1).max(5).optional(),
-  competency_problem_solving: z.number().min(1).max(5).optional(),
-  competency_willingness_to_learn: z.number().min(1).max(5).optional(),
+  competency_risk_taking: optionalRating(),
+  competency_leadership: optionalRating(),
+  competency_communication: optionalRating(),
+  competency_financial_mgmt: optionalRating(),
+  competency_problem_solving: optionalRating(),
+  competency_willingness_to_learn: optionalRating(),
 
   // Commitment & Declaration
   willing_full_time: z.boolean().default(false),

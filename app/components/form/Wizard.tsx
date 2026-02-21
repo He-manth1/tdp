@@ -219,6 +219,26 @@ export function Wizard({ initialData }: WizardProps) {
     }
   };
 
+  const onValidationError = (validationErrors: any) => {
+    console.error("Form validation errors:", validationErrors);
+    // Build a readable list of field errors
+    const errorFields = Object.keys(validationErrors);
+    const firstErrorField = errorFields[0];
+    const firstErrorMsg = validationErrors[firstErrorField]?.message || "Invalid value";
+
+    // Check if the error is on a step 1 field — if so, navigate back
+    const step1Fields = getFieldsForStep(1);
+    const hasStep1Errors = errorFields.some((f) => step1Fields.includes(f as any));
+    if (hasStep1Errors && currentStep !== 1) {
+      setCurrentStep(1);
+      window.scrollTo(0, 0);
+    }
+
+    setSubmitError(
+      `Please fix ${errorFields.length} validation error(s). First: "${firstErrorField}" — ${firstErrorMsg}`
+    );
+  };
+
   const handleLogout = () => {
     router.push("/login");
   };
@@ -308,7 +328,7 @@ export function Wizard({ initialData }: WizardProps) {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+        <form onSubmit={handleSubmit(onSubmit, onValidationError)} className="w-full">
           <ProgressStepper
             currentStep={currentStep}
             totalSteps={totalSteps}
