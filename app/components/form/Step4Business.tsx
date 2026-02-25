@@ -4,7 +4,6 @@ import { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from "rea
 import { ApplicationFormData } from "@/lib/validations";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Checkbox } from "@/app/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Step4BusinessProps {
@@ -56,7 +55,12 @@ export function Step4Business({ register, errors, watch, setValue, tEn, tTe }: S
                 id="current_business_no"
                 value="no"
                 checked={currentBusiness === false}
-                onChange={() => setValue("current_business", false, { shouldValidate: true })}
+                onChange={() => {
+                  setValue("current_business", false, { shouldValidate: true });
+                  setValue("business_location", "", { shouldValidate: true });
+                  setValue("want_to_expand", undefined, { shouldValidate: true });
+                  setValue("expansion_details", "", { shouldValidate: true });
+                }}
                 className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
               />
               <Label htmlFor="current_business_no">No / లేదు</Label>
@@ -75,6 +79,18 @@ export function Step4Business({ register, errors, watch, setValue, tEn, tTe }: S
             className="space-y-4 border-l-2 border-primary pl-4 ml-1"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="business_location">Location of the business / వ్యాపార స్థలం <span className="text-destructive">*</span></Label>
+                <Input
+                  id="business_location"
+                  {...register("business_location")}
+                  placeholder="Business location / వ్యాపార స్థలం"
+                />
+                {errors.business_location && (
+                  <p className="text-sm text-destructive">{errors.business_location.message}</p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="business_nature">{tEn.businessNature} / {tTe.businessNature}</Label>
                 <Input
@@ -123,13 +139,27 @@ export function Step4Business({ register, errors, watch, setValue, tEn, tTe }: S
                     type="radio"
                     id="want_to_expand_no"
                     checked={wantToExpand === false}
-                    onChange={() => setValue("want_to_expand", false, { shouldValidate: true })}
+                    onChange={() => {
+                      setValue("want_to_expand", false, { shouldValidate: true });
+                      setValue("expansion_details", "", { shouldValidate: true });
+                    }}
                     className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
                   />
                   <Label htmlFor="want_to_expand_no">No / లేదు</Label>
                 </div>
               </div>
             </div>
+
+            {wantToExpand && (
+              <div className="space-y-2">
+                <Label htmlFor="expansion_details">If yes, please provide expansion details (optional) / అవును అయితే, విస్తరణ వివరాలు (ఐచ్ఛికం)</Label>
+                <Input
+                  id="expansion_details"
+                  {...register("expansion_details")}
+                  placeholder="Expansion details / విస్తరణ వివరాలు"
+                />
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

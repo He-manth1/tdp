@@ -56,6 +56,8 @@ export default function PrintRecordPage() {
         );
     }
 
+    const displayStatus = application.status === "Completed" ? "Grounded" : application.status;
+
     return (
         <div className="min-h-screen bg-white text-black p-8 max-w-[210mm] mx-auto">
             {/* Print Controls - Hidden when printing */}
@@ -94,7 +96,7 @@ export default function PrintRecordPage() {
                 <div className="text-right">
                     <p className="text-sm font-bold">Date: {new Date(application.created_at).toLocaleDateString()}</p>
                     <span className="inline-block px-3 py-1 border border-black rounded text-sm font-bold mt-1">
-                        {application.status}
+                        {displayStatus}
                     </span>
                 </div>
             </header>
@@ -251,24 +253,22 @@ export default function PrintRecordPage() {
                     </section>
                 )}
 
-                {/* Disability Information - only if applicable */}
-                {application.is_handicapped && (
-                    <section>
-                        <h2 className="text-lg font-bold border-b border-gray-300 mb-3 pb-1 uppercase">Disability Information</h2>
-                        <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-                            <div className="grid grid-cols-3">
-                                <span className="font-semibold text-gray-600">Physically Handicapped:</span>
-                                <span className="col-span-2 font-medium">Yes</span>
-                            </div>
-                            {application.handicap_type && (
-                                <div className="grid grid-cols-3">
-                                    <span className="font-semibold text-gray-600">Type:</span>
-                                    <span className="col-span-2 font-medium">{application.handicap_type}</span>
-                                </div>
-                            )}
+                {/* Disability Information */}
+                <section>
+                    <h2 className="text-lg font-bold border-b border-gray-300 mb-3 pb-1 uppercase">Disability Information</h2>
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                        <div className="grid grid-cols-3">
+                            <span className="font-semibold text-gray-600">Physically Handicapped:</span>
+                            <span className="col-span-2 font-medium">{application.is_handicapped ? "Yes" : "No"}</span>
                         </div>
-                    </section>
-                )}
+                        {application.is_handicapped && application.handicap_type && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Type:</span>
+                                <span className="col-span-2 font-medium">{application.handicap_type}</span>
+                            </div>
+                        )}
+                    </div>
+                </section>
 
                 {/* Entrepreneurial Background */}
                 <section>
@@ -278,10 +278,22 @@ export default function PrintRecordPage() {
                             <span className="font-semibold text-gray-600">Current Business:</span>
                             <span className="col-span-2 font-medium">{application.current_business ? "Yes" : "No"}</span>
                         </div>
+                        {application.current_business && application.business_location && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Business Location:</span>
+                                <span className="col-span-2 font-medium">{application.business_location}</span>
+                            </div>
+                        )}
                         {application.current_business && (
                             <div className="grid grid-cols-3">
                                 <span className="font-semibold text-gray-600">Want to Expand:</span>
                                 <span className="col-span-2 font-medium">{application.want_to_expand ? "Yes" : "No"}</span>
+                            </div>
+                        )}
+                        {application.current_business && application.want_to_expand && application.expansion_details && (
+                            <div className="grid grid-cols-3 col-span-2">
+                                <span className="font-semibold text-gray-600">Expansion Details:</span>
+                                <span className="col-span-2 font-medium">{application.expansion_details}</span>
                             </div>
                         )}
                         {application.business_nature && (
@@ -326,9 +338,15 @@ export default function PrintRecordPage() {
                     <h2 className="text-lg font-bold border-b border-gray-300 mb-3 pb-1 uppercase">Enterprise Idea & Market Readiness</h2>
                     <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                         <div className="grid grid-cols-3 col-span-2">
-                            <span className="font-semibold text-gray-600">Interested Project:</span>
+                            <span className="font-semibold text-gray-600">Proposed Enterprise / Project Idea:</span>
                             <span className="col-span-2 font-medium text-lg">{application.project_interest}</span>
                         </div>
+                        {application.business_sector && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Business Sector:</span>
+                                <span className="col-span-2 font-medium">{application.business_sector}</span>
+                            </div>
+                        )}
                         <div className="grid grid-cols-3 col-span-2">
                             <span className="font-semibold text-gray-600">Reason for Interest:</span>
                             <span className="col-span-2 font-medium">{application.reason_for_interest}</span>
@@ -461,6 +479,12 @@ export default function PrintRecordPage() {
                             <span className="font-semibold text-gray-600">Existing Loans:</span>
                             <span className="col-span-2 font-medium">{application.has_existing_loans ? "Yes" : "No"}</span>
                         </div>
+                        {application.has_existing_loans && (
+                            <div className="grid grid-cols-3">
+                                <span className="font-semibold text-gray-600">Business Loan:</span>
+                                <span className="col-span-2 font-medium">{application.is_business_loan ? "Yes" : "No"}</span>
+                            </div>
+                        )}
                         {application.has_existing_loans && application.existing_loan_type && (
                             <div className="grid grid-cols-3">
                                 <span className="font-semibold text-gray-600">Loan Type:</span>
@@ -495,6 +519,22 @@ export default function PrintRecordPage() {
                         <div className="grid grid-cols-3">
                             <span className="font-semibold text-gray-600">EDP Training Attended:</span>
                             <span className="col-span-2 font-medium">{application.has_edp_training ? "Yes" : "No"}</span>
+                        </div>
+                        {application.has_edp_training && application.edp_training_details && (
+                            <div className="grid grid-cols-3 col-span-2">
+                                <span className="font-semibold text-gray-600">EDP Training Details:</span>
+                                <span className="col-span-2 font-medium">{application.edp_training_details}</span>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                <section>
+                    <h2 className="text-lg font-bold border-b border-gray-300 mb-3 pb-1 uppercase">Department to Send</h2>
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                        <div className="grid grid-cols-3">
+                            <span className="font-semibold text-gray-600">Department:</span>
+                            <span className="col-span-2 font-medium">{application.department_to_send || "N/A"}</span>
                         </div>
                     </div>
                 </section>

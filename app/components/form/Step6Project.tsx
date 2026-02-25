@@ -4,6 +4,7 @@ import { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from "rea
 import { ApplicationFormData } from "@/lib/validations";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
+import { Select } from "@/app/components/ui/select";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { motion } from "framer-motion";
@@ -26,7 +27,9 @@ export function Step6Project({ register, errors, watch, setValue, tEn, tTe }: St
     { value: "Local market", label: "Local market / స్థానిక మార్కెట్" },
     { value: "Mandal level", label: "Mandal level / మండల స్థాయి" },
     { value: "District level", label: "District level / జిల్లా స్థాయి" },
-    { value: "Online", label: "Online / ఆన్‌లైన్" },
+    { value: "E-Commerce Online", label: "E-Commerce Online / ఈ-కామర్స్ ఆన్‌లైన్" },
+    { value: "Exports", label: "Exports / ఎగుమతులు" },
+    { value: "Other", label: "Other / ఇతర" },
   ];
 
   // Parse comma-separated string into array for checkbox state
@@ -75,8 +78,22 @@ export function Step6Project({ register, errors, watch, setValue, tEn, tTe }: St
       </div>
 
       <div className="space-y-2">
+        <Label htmlFor="business_sector">
+          2. Business Sector / వ్యాపార రంగం
+        </Label>
+        <Select id="business_sector" {...register("business_sector")}>
+          <option value="">Select Business Sector / వ్యాపార రంగం ఎంచుకోండి</option>
+          <option value="Agriculture">Agriculture</option>
+          <option value="Manufacturing">Manufacturing</option>
+          <option value="Services">Services</option>
+          <option value="Retail">Retail</option>
+          <option value="Other">Other</option>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="reason_for_interest">
-          2. Why did you choose this activity? / మీరు ఈ కార్యాచరణను ఎందుకు ఎంచుకున్నారు? <span className="text-destructive">*</span>
+          3. Why did you choose this activity? / మీరు ఈ కార్యాచరణను ఎందుకు ఎంచుకున్నారు? <span className="text-destructive">*</span>
         </Label>
         <Textarea
           id="reason_for_interest"
@@ -93,7 +110,7 @@ export function Step6Project({ register, errors, watch, setValue, tEn, tTe }: St
 
       {/* 3. Market Survey */}
       <div className="space-y-3">
-        <Label>3. Have you done any market survey? / మీరు ఏదైనా మార్కెట్ సర్వే చేశారా?</Label>
+        <Label>4. Have you done any market survey? / మీరు ఏదైనా మార్కెట్ సర్వే చేశారా?</Label>
         <div className="flex gap-4">
           <label
             className={cn(
@@ -132,7 +149,7 @@ export function Step6Project({ register, errors, watch, setValue, tEn, tTe }: St
 
       {/* 4. Target Customers (checkboxes stored as comma-separated string) */}
       <div className="space-y-2">
-        <Label>4. Who are your target customers? / మీ లక్ష్య వినియోగదారులు ఎవరు?</Label>
+        <Label>5. Who are your target customers? / మీ లక్ష్య వినియోగదారులు ఎవరు?</Label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {customerOptions.map((option) => (
             <div key={option.value} className="flex items-center space-x-2">
@@ -150,7 +167,7 @@ export function Step6Project({ register, errors, watch, setValue, tEn, tTe }: St
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="major_competitors">5. Major competitors in your area: / మీ ప్రాంతంలోని ప్రధాన పోటీదారులు:</Label>
+        <Label htmlFor="major_competitors">6. Major competitors in your area: / మీ ప్రాంతంలోని ప్రధాన పోటీదారులు:</Label>
         <Input
           id="major_competitors"
           {...register("major_competitors")}
@@ -160,7 +177,7 @@ export function Step6Project({ register, errors, watch, setValue, tEn, tTe }: St
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="expected_monthly_sales">6. Expected monthly sales ({"\u20B9"}): / ఆశించిన నెలవారీ అమ్మకాలు ({"\u20B9"}):</Label>
+          <Label htmlFor="expected_monthly_sales">7. Expected monthly sales ({"\u20B9"}): / ఆశించిన నెలవారీ అమ్మకాలు ({"\u20B9"}):</Label>
           <Input
             id="expected_monthly_sales"
             type="number"
@@ -169,7 +186,7 @@ export function Step6Project({ register, errors, watch, setValue, tEn, tTe }: St
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="expected_monthly_profit">7. Expected monthly profit ({"\u20B9"}): / ఆశించిన నెలవారీ లాభం ({"\u20B9"}):</Label>
+          <Label htmlFor="expected_monthly_profit">8. Expected monthly profit ({"\u20B9"}): / ఆశించిన నెలవారీ లాభం ({"\u20B9"}):</Label>
           <Input
             id="expected_monthly_profit"
             type="number"

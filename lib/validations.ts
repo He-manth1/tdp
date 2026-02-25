@@ -1,14 +1,16 @@
 import { z } from "zod";
 
+const SQL_INT_MAX = 2147483647;
+
 // Helper: converts NaN / empty-string / null / undefined → undefined before Zod validates
-const optionalNumber = (min = 0) =>
+const optionalNumber = (min = 0, max = SQL_INT_MAX) =>
   z.preprocess(
     (val) => {
       if (val === "" || val === null || val === undefined) return undefined;
       const n = Number(val);
       return isNaN(n) ? undefined : n;
     },
-    z.number().min(min).optional()
+    z.number().min(min).max(max).optional()
   );
 
 const optionalRating = () =>
@@ -69,10 +71,12 @@ export const applicationSchema = z.object({
 
   // Business Information
   current_business: z.boolean().default(false),
+  business_location: z.string().optional(),
   business_nature: z.string().optional(),
   experience: optionalNumber(),
   reason_for_closure: z.string().optional(),
   want_to_expand: z.boolean().optional(),
+  expansion_details: z.string().optional(),
   family_business_in_business: z.boolean().default(false),
   family_business_activity: z.string().optional(),
   business_motivation: z.string().optional(),
@@ -87,12 +91,17 @@ export const applicationSchema = z.object({
   own_contribution: optionalNumber(),
   loan_required: optionalNumber(),
   has_existing_loans: z.boolean().optional(),
+  is_business_loan: z.boolean().optional(),
   existing_loan_type: z.string().optional(),
   existing_loans: z.string().optional(),
   repayment_capacity: optionalNumber(),
 
   // Project Information
   project_interest: z.string().min(1, "Project interest is required").max(255),
+  business_sector: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.enum(["Agriculture", "Manufacturing", "Services", "Retail", "Other"]).optional()
+  ),
   reason_for_interest: z.string().min(1, "Reason for interest is required"),
   market_survey_done: z.boolean().default(false),
   target_customers: z.string().optional(), // Will store comma separated string or simplified
@@ -110,6 +119,11 @@ export const applicationSchema = z.object({
   // Training & Support Needs
   support_required: z.array(z.string()).default([]),
   has_edp_training: z.boolean().default(false),
+  edp_training_details: z.string().optional(),
+  department_to_send: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.enum(["Industries", "MSME", "Agriculture"]).optional()
+  ),
 
   // Resource Availability
   machinery_required: z.string().optional(),
@@ -170,6 +184,32 @@ export const applicationSchema = z.object({
   {
     message: "Handicap type is required when physical disability is Yes",
     path: ["handicap_type"],
+  }
+).refine(
+  (data) => {
+    // Business location required if user already runs a business
+    if (data.current_business === true) {
+      if (!data.business_location || data.business_location.trim() === "") {
+        return false;
+      }
+    }
+    return true;
+  },
+  {
+    message: "Business location is required when current business is Yes",
+    path: ["business_location"],
+  }
+).refine(
+  (data) => {
+    // Business loan selection required if existing loans is Yes
+    if (data.has_existing_loans === true && data.is_business_loan === undefined) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "Please specify whether existing loan is a business loan",
+    path: ["is_business_loan"],
   }
 ).refine(
   (data) => {

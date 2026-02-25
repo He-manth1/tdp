@@ -50,10 +50,12 @@ export interface ApplicationSubmitData {
 
   // Business Information
   current_business: boolean;
+  business_location?: string;
   business_nature?: string;
   experience?: number;
   reason_for_closure?: string;
   want_to_expand?: boolean;
+  expansion_details?: string;
   family_business_in_business: boolean;
   family_business_activity?: string;
   business_motivation?: string;
@@ -68,12 +70,14 @@ export interface ApplicationSubmitData {
   own_contribution?: number;
   loan_required?: number;
   has_existing_loans?: boolean;
+  is_business_loan?: boolean;
   existing_loan_type?: string;
   existing_loans?: string;
   repayment_capacity?: number;
 
   // Project Information
   project_interest: string;
+  business_sector?: "Agriculture" | "Manufacturing" | "Services" | "Retail" | "Other";
   reason_for_interest: string;
   market_survey_done?: boolean;
   target_customers?: string;
@@ -89,6 +93,8 @@ export interface ApplicationSubmitData {
   // Training & Support Needs
   support_required?: string[];
   has_edp_training: boolean;
+  edp_training_details?: string;
+  department_to_send?: "Industries" | "MSME" | "Agriculture";
 
   // Resource Availability
   machinery_required?: string;
@@ -121,10 +127,27 @@ export interface ApplicationSubmitData {
   signature_data?: string;
 }
 
+export interface StatusHistoryEntry {
+  changed_at?: string;
+  change?: {
+    status_from?: string | null;
+    status_to?: string | null;
+    with_department_from?: string | null;
+    with_department_to?: string | null;
+  };
+  // Backward compatibility
+  timestamp?: string;
+  status?: string;
+  status_recipient?: string | null;
+  changes?: string[];
+}
+
 export interface Application extends ApplicationSubmitData {
   id: number;
   created_at: string;
   status: string;
+  status_recipient?: "Applicant" | "Bank" | "Name" | "Department" | null;
+  status_history?: StatusHistoryEntry[] | null;
 }
 
 export const submitApplication = async (data: ApplicationSubmitData) => {

@@ -4,6 +4,7 @@ import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from "rea
 import { ApplicationFormData } from "@/lib/validations";
 import { Label } from "@/app/components/ui/label";
 import { Checkbox } from "@/app/components/ui/checkbox";
+import { Textarea } from "@/app/components/ui/textarea";
 import { motion } from "framer-motion";
 import { Select } from "@/app/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -65,7 +66,7 @@ const getSubOptions = (category: string) => {
   }
 };
 
-export function Step8Support({ register, setValue, watch, tEn, tTe }: Step8SupportProps) {
+export function Step8Support({ register, errors, setValue, watch, tEn, tTe }: Step8SupportProps) {
   const supportRequired = watch("support_required") || [];
   const hasEdpTraining = watch("has_edp_training");
 
@@ -221,12 +222,46 @@ export function Step8Support({ register, setValue, watch, tEn, tTe }: Step8Suppo
             <input
               type="radio"
               checked={hasEdpTraining === false}
-              onChange={() => setValue("has_edp_training", false)}
+              onChange={() => {
+                setValue("has_edp_training", false);
+                setValue("edp_training_details", "");
+              }}
               className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
             />
             <span className="text-sm font-medium">No / లేదు</span>
           </label>
         </div>
+
+        {hasEdpTraining && (
+          <div className="space-y-2">
+            <Label htmlFor="edp_training_details">
+              Please provide training details (optional) / శిక్షణ వివరాలు ఇవ్వండి (ఐచ్ఛికం)
+            </Label>
+            <Textarea
+              id="edp_training_details"
+              {...register("edp_training_details")}
+              placeholder="Course name, institute, year, etc. / కోర్సు పేరు, సంస్థ, సంవత్సరం మొదలైనవి"
+              rows={3}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Department to Send */}
+      <div className="space-y-3 pt-4 border-t border-slate-200">
+        <h3 className="text-lg font-semibold">Department to Send</h3>
+        <Label htmlFor="department_to_send">
+          Select Department / విభాగాన్ని ఎంచుకోండి
+        </Label>
+        <Select id="department_to_send" {...register("department_to_send")}>
+          <option value="">Select Department</option>
+          <option value="Industries">Industries</option>
+          <option value="MSME">MSME</option>
+          <option value="Agriculture">Agriculture</option>
+        </Select>
+        {errors.department_to_send && (
+          <p className="text-sm text-destructive">{errors.department_to_send.message}</p>
+        )}
       </div>
     </motion.div>
   );

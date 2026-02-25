@@ -313,7 +313,7 @@ export default function Dashboard() {
                 color="purple"
               />
               <StatCard
-                title="Completed"
+                title="Grounded"
                 value={stats.completed}
                 icon={<CheckCircle2 className="h-6 w-6" />}
                 color="emerald"
@@ -401,21 +401,24 @@ function NavItem({ icon, label, active = false, collapsed = false, onClick }: { 
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const displayStatus = status === "Completed" ? "Grounded" : status;
   const styles: Record<string, string> = {
     "Approved": "bg-emerald-100 text-emerald-700",
+    "Grounded": "bg-emerald-100 text-emerald-700",
     "Completed": "bg-emerald-100 text-emerald-700",
     "Pending": "bg-amber-100 text-amber-700",
     "In Review": "bg-blue-100 text-blue-700",
     "In Progress": "bg-blue-100 text-blue-700",
+    "Not Interested": "bg-slate-200 text-slate-700",
     "Rejected": "bg-red-100 text-red-700",
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || "bg-gray-100 text-gray-700"}`}>
-      {(status === "Approved" || status === "Completed") && <CheckCircle2 className="w-3 h-3 mr-1" />}
-      {status === "Pending" && <Clock className="w-3 h-3 mr-1" />}
-      {(status === "In Review" || status === "In Progress") && <Loader2 className="w-3 h-3 mr-1" />}
-      {status}
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[displayStatus] || "bg-gray-100 text-gray-700"}`}>
+      {(displayStatus === "Approved" || displayStatus === "Grounded") && <CheckCircle2 className="w-3 h-3 mr-1" />}
+      {displayStatus === "Pending" && <Clock className="w-3 h-3 mr-1" />}
+      {(displayStatus === "In Review" || displayStatus === "In Progress") && <Loader2 className="w-3 h-3 mr-1" />}
+      {displayStatus}
     </span>
   );
 }

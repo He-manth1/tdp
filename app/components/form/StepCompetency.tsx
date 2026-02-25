@@ -144,3 +144,4 @@ export function StepCompetency({ watch, setValue, tEn, tTe }: StepCompetencyProp
 
 
 
+

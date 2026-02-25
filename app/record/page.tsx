@@ -28,18 +28,21 @@ import { cn } from "@/lib/utils";
 
 // Status Badge Component
 function StatusBadge({ status }: { status: string }) {
+  const displayStatus = status === "Completed" ? "Grounded" : status;
   const styles: Record<string, string> = {
     "Approved": "bg-emerald-100 text-emerald-700",
+    "Grounded": "bg-emerald-100 text-emerald-700",
     "Completed": "bg-emerald-100 text-emerald-700",
     "Pending": "bg-amber-100 text-amber-700",
     "In Progress": "bg-blue-100 text-blue-700",
     "In Review": "bg-blue-100 text-blue-700",
+    "Not Interested": "bg-slate-200 text-slate-700",
     "Rejected": "bg-red-100 text-red-700",
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status] || "bg-gray-100 text-gray-700"}`}>
-      {status}
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[displayStatus] || "bg-gray-100 text-gray-700"}`}>
+      {displayStatus}
     </span>
   );
 }
@@ -74,8 +77,14 @@ export default function RecordPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
+  const [newStatusRecipient, setNewStatusRecipient] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const normalizeRecipient = (value?: string | null) => {
+    if (!value) return "";
+    return value === "Name" ? "Department" : value;
+  };
 
   const filteredApplications = applications.filter((app) => {
     const query = searchQuery.toLowerCase();
@@ -103,7 +112,7 @@ export default function RecordPage() {
   };
 
   const handleUpdateStatus = async () => {
-    if (!selectedApplication || !newStatus) return;
+    if (!selectedApplication || !newStatus || !newStatusRecipient) return;
 
     setIsUpdating(true);
     try {
@@ -112,7 +121,7 @@ export default function RecordPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus, status_recipient: newStatusRecipient }),
       });
 
       if (response.ok) {
@@ -134,7 +143,8 @@ export default function RecordPage() {
 
   const openEditModal = (app: Application) => {
     setSelectedApplication(app);
-    setNewStatus(app.status || "Pending");
+    setNewStatus(app.status === "Completed" ? "Grounded" : (app.status || "Pending"));
+    setNewStatusRecipient(normalizeRecipient(app.status_recipient) || "Applicant");
   };
 
   return (
@@ -237,20 +247,21 @@ export default function RecordPage() {
                       <th className="text-left py-3 px-6 text-xs font-semibold text-slate-500 uppercase">Phone</th>
                       <th className="text-left py-3 px-6 text-xs font-semibold text-slate-500 uppercase">Project</th>
                       <th className="text-left py-3 px-6 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                      <th className="text-left py-3 px-6 text-xs font-semibold text-slate-500 uppercase">With Department</th>
                       <th className="text-right py-3 px-6 text-xs font-semibold text-slate-500 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {loading ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-slate-500">
+                        <td colSpan={7} className="py-8 text-center text-slate-500">
                           <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
                           Loading records...
                         </td>
                       </tr>
                     ) : filteredApplications.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-slate-500">No applications found matching your search.</td>
+                        <td colSpan={7} className="py-8 text-center text-slate-500">No applications found matching your search.</td>
                       </tr>
                     ) : (
                       filteredApplications.map((app) => (
@@ -264,6 +275,7 @@ export default function RecordPage() {
                               <StatusBadge status={app.status || "Pending"} />
                             </button>
                           </td>
+                          <td className="py-4 px-6 text-sm text-slate-600">{normalizeRecipient(app.status_recipient) || "-"}</td>
                           <td className="py-4 px-6 text-right">
                             <Button
                               size="icon"
@@ -312,7 +324,7 @@ export default function RecordPage() {
               {/* Status Update Section */}
               <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
                 <label className="block text-sm font-semibold text-slate-900 mb-2">Update Status</label>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
@@ -321,10 +333,25 @@ export default function RecordPage() {
                     <option value="Pending">Pending</option>
                     <option value="In Review">In Review</option>
                     <option value="Approved">Approved</option>
-                    <option value="Completed">Completed</option>
+                    <option value="Grounded">Grounded</option>
+                    <option value="Not Interested">Not Interested</option>
                     <option value="Rejected">Rejected</option>
                   </select>
-                  <Button onClick={handleUpdateStatus} disabled={isUpdating} className="bg-blue-600 hover:bg-blue-700">
+                  <select
+                    value={newStatusRecipient}
+                    onChange={(e) => setNewStatusRecipient(e.target.value)}
+                    className="flex-1 rounded-lg border-slate-200 text-sm focus:ring-2 focus:ring-blue-500/20"
+                    aria-label="With Department"
+                  >
+                    <option value="Applicant">Applicant</option>
+                    <option value="Bank">Bank</option>
+                    <option value="Department">Department</option>
+                  </select>
+                  <Button
+                    onClick={handleUpdateStatus}
+                    disabled={isUpdating || !newStatus || !newStatusRecipient}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
                     {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                     Save Status
                   </Button>
@@ -350,6 +377,50 @@ export default function RecordPage() {
                     <p><span className="font-medium text-slate-700">Submitted:</span> {new Date(selectedApplication.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Status Timeline */}
+              <div className="border border-slate-200 rounded-xl p-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Status History</h3>
+                {selectedApplication.status_history && selectedApplication.status_history.length > 0 ? (
+                  <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
+                    {[...selectedApplication.status_history].reverse().map((entry, idx) => (
+                      <div key={`${entry.changed_at || entry.timestamp || idx}-${idx}`} className="border-l-2 border-blue-200 pl-3">
+                        {entry.change ? (
+                          <>
+                            <p className="text-sm font-medium text-slate-900">
+                              {(entry.change.status_to === "Completed" ? "Grounded" : entry.change.status_to) || "-"}
+                              {entry.change.with_department_to ? ` -> ${normalizeRecipient(entry.change.with_department_to)}` : ""}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {entry.changed_at ? new Date(entry.changed_at).toLocaleString() : "-"}
+                            </p>
+                            <p className="text-xs text-slate-600 mt-1">
+                              Status: {(entry.change.status_from === "Completed" ? "Grounded" : entry.change.status_from) || "None"} -> {(entry.change.status_to === "Completed" ? "Grounded" : entry.change.status_to) || "None"}
+                              {" | "}
+                              With Department: {normalizeRecipient(entry.change.with_department_from) || "None"} -> {normalizeRecipient(entry.change.with_department_to) || "None"}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm font-medium text-slate-900">
+                              {entry.status === "Completed" ? "Grounded" : entry.status}
+                              {entry.status_recipient ? ` -> ${normalizeRecipient(entry.status_recipient)}` : ""}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {entry.timestamp ? new Date(entry.timestamp).toLocaleString() : "-"}
+                            </p>
+                            {entry.changes && entry.changes.length > 0 && (
+                              <p className="text-xs text-slate-600 mt-1">{entry.changes.join(" | ")}</p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">No status updates yet.</p>
+                )}
               </div>
             </div>
 

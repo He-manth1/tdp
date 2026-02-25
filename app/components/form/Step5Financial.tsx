@@ -19,6 +19,7 @@ interface Step5FinancialProps {
 export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: Step5FinancialProps) {
   const isBpl = watch("is_bpl");
   const hasExistingLoans = watch("has_existing_loans");
+  const isBusinessLoan = watch("is_business_loan");
 
   return (
     <motion.div
@@ -208,6 +209,7 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
               checked={hasExistingLoans === false}
               onChange={() => {
                 setValue("has_existing_loans", false, { shouldValidate: true });
+                setValue("is_business_loan", undefined, { shouldValidate: true });
                 setValue("existing_loan_type", "");
                 setValue("existing_loans", "");
               }}
@@ -227,6 +229,36 @@ export function Step5Financial({ register, errors, watch, setValue, tEn, tTe }: 
             transition={{ duration: 0.3 }}
             className="space-y-4 border-l-2 border-primary pl-4 ml-1"
           >
+            {/* Is Business Loan */}
+            <div className="space-y-2">
+              <Label>Is it a business loan? / ఇది వ్యాపార రుణమా?</Label>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="is_business_loan_yes"
+                    checked={isBusinessLoan === true}
+                    onChange={() => setValue("is_business_loan", true, { shouldValidate: true })}
+                    className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <Label htmlFor="is_business_loan_yes">Yes / అవును</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="is_business_loan_no"
+                    checked={isBusinessLoan === false}
+                    onChange={() => setValue("is_business_loan", false, { shouldValidate: true })}
+                    className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <Label htmlFor="is_business_loan_no">No / కాదు</Label>
+                </div>
+              </div>
+              {errors.is_business_loan && (
+                <p className="text-sm text-destructive">{errors.is_business_loan.message}</p>
+              )}
+            </div>
+
             {/* Loan Type */}
             <div className="space-y-2">
               <Label>{tEn.loanType} / {tTe.loanType}</Label>

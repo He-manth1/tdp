@@ -19,6 +19,31 @@ interface WizardProps {
   initialData?: Application;
 }
 
+const normalizeDateForInput = (value?: string | null): string => {
+  if (!value) return "";
+
+  const raw = value.trim();
+  if (!raw) return "";
+
+  // Already in HTML date input format.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  // Handle values like "YYYY-MM-DDTHH:mm:ss..." or "YYYY-MM-DD 00:00:00".
+  const isoPrefix = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (isoPrefix) return isoPrefix[1];
+
+  // Handle legacy "DD-MM-YYYY" or "DD/MM/YYYY" values.
+  const dmy = raw.match(/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/);
+  if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().split("T")[0];
+  }
+
+  return "";
+};
+
 export function Wizard({ initialData }: WizardProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -43,7 +68,7 @@ export function Wizard({ initialData }: WizardProps) {
     defaultValues: initialData ? {
       ...initialData,
       // Sanitize nulls to undefined or matching types for Zod
-      date_of_birth: initialData.date_of_birth ?? "",
+      date_of_birth: normalizeDateForInput(initialData.date_of_birth),
       pan_number: initialData.pan_number ?? "",
       door_number: initialData.door_number ?? "",
       street_landmark: initialData.street_landmark ?? "",
@@ -61,9 +86,11 @@ export function Wizard({ initialData }: WizardProps) {
       shg_outstanding_months: initialData.shg_outstanding_months ?? undefined,
       shg_outstanding_amount: initialData.shg_outstanding_amount ?? undefined,
       handicap_type: initialData.handicap_type ?? undefined,
+      business_location: initialData.business_location ?? undefined,
       business_nature: initialData.business_nature ?? undefined,
       experience: initialData.experience ?? undefined,
       want_to_expand: initialData.want_to_expand ?? undefined,
+      expansion_details: initialData.expansion_details ?? undefined,
       is_bpl: initialData.is_bpl ?? undefined,
       ration_card_number: initialData.ration_card_number ?? "",
       bank_name: initialData.bank_name ?? "",
@@ -72,13 +99,17 @@ export function Wizard({ initialData }: WizardProps) {
       own_contribution: initialData.own_contribution ?? undefined,
       loan_required: initialData.loan_required ?? undefined,
       has_existing_loans: initialData.has_existing_loans ?? undefined,
+      is_business_loan: initialData.is_business_loan ?? undefined,
       existing_loan_type: initialData.existing_loan_type ?? "",
       existing_loans: initialData.existing_loans ?? undefined,
       repayment_capacity: initialData.repayment_capacity ?? undefined,
+      business_sector: initialData.business_sector ?? undefined,
       land_location: initialData.land_location ?? undefined,
       survey_details: initialData.survey_details ?? undefined,
       support_required: initialData.support_required ?? [],
       has_edp_training: initialData.has_edp_training ?? false,
+      edp_training_details: initialData.edp_training_details ?? undefined,
+      department_to_send: initialData.department_to_send ?? undefined,
       machinery_required: initialData.machinery_required ?? undefined,
       raw_material_source: initialData.raw_material_source ?? undefined,
       has_power_connection: initialData.has_power_connection ?? false,
@@ -112,6 +143,9 @@ export function Wizard({ initialData }: WizardProps) {
       bank_name: "",
       bank_branch: "",
       existing_loan_type: "",
+      expansion_details: "",
+      edp_training_details: "",
+      department_to_send: undefined,
     },
   });
 
@@ -171,16 +205,16 @@ export function Wizard({ initialData }: WizardProps) {
           // Step 3: Disability
           "is_handicapped", "handicap_type",
           // Step 4: Business
-          "current_business", "business_nature", "experience", "want_to_expand",
+          "current_business", "business_location", "business_nature", "experience", "want_to_expand", "expansion_details",
           // Step 5: Financial
           "is_bpl", "ration_card_number",
           "bank_account_number", "bank_name", "bank_branch",
           "annual_family_income", "own_contribution", "loan_required",
-          "has_existing_loans", "existing_loan_type", "existing_loans", "repayment_capacity",
+          "has_existing_loans", "is_business_loan", "existing_loan_type", "existing_loans", "repayment_capacity",
           // Step 6: Project
-          "project_interest", "reason_for_interest",
+          "project_interest", "business_sector", "reason_for_interest",
           // Training & Support Needs
-          "support_required", "has_edp_training",
+          "support_required", "has_edp_training", "edp_training_details", "department_to_send",
           // Resource Availability (includes land/premises)
           "land_status", "land_location", "survey_details",
           "machinery_required", "raw_material_source", "has_power_connection", "has_water_facility",
